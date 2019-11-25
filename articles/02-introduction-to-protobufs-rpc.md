@@ -52,7 +52,7 @@ message PushRequest {
 }
 
 message PushResponse {}
-```
+~~~
 
 Our `StatsService` defines a RPC called `Push`, which takes a message with three parameters:
 

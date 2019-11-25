@@ -167,12 +167,12 @@ will become more complex and harder to manage. Using a Makefile enables us to ad
 which we will run from Drone with time. Currently we can start with a minimal Makefile which just
 wraps a call to `drone exec`:
 
-```Makefile
+~~~Makefile
 .PHONY: all
 
 all:
 	drone exec
-```
+~~~
 
 This very simple Makefile means that we'll be able to build our project with Drone CI at any time just by running `make`.
 We will extend it over time to support new requirements, but for now we'll just make sure it's available to us.

@@ -71,7 +71,7 @@ a dynamic number of services. Running make verifies this:
 [test:2] + go mod tidy > /dev/null 2>&1
 [test:3] + go mod download > /dev/null 2>&1
 [test:4] + go fmt ./... > /dev/null 2>&1
-```
+~~~
 
 ## Building our services from cmd/
 
