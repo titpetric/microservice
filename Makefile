@@ -1,4 +1,4 @@
-.PHONY: all rpc
+.PHONY: all rpc build templates
 
 all:
 	@drone exec
@@ -13,6 +13,19 @@ build.%: SERVICE=$*
 build.%:
 	go build -o build/$(SERVICE)-$(GOOS)-$(GOARCH) ./cmd/$(SERVICE)/*.go
 
+
+templates: $(shell ls -d rpc/* | sed -e 's/rpc\//templates./g')
+	@echo OK.
+
+templates.%: export SERVICE=$*
+templates.%: export SERVICE_CAMEL=$(shell echo $(SERVICE) | sed -r 's/(^|_)([a-z])/\U\2/g')
+templates.%: export MODULE=$(shell grep ^module go.mod | sed -e 's/module //g')
+templates.%:
+	mkdir -p cmd/$(SERVICE) client/$(SERVICE) server/$(SERVICE)
+	envsubst < templates/cmd_main.go.tpl > cmd/$(SERVICE)/main.go
+	envsubst < templates/client_client.go.tpl > client/$(SERVICE)/client.go
+	envsubst < templates/server_server.go.tpl > server/$(SERVICE)/server.go
+	impl -dir rpc/$(SERVICE) 'svc *Server' $(SERVICE).$(SERVICE_CAMEL)Service >> server/$(SERVICE)/server.go
 
 rpc: $(shell ls -d rpc/* | sed -e 's/\//./g')
 rpc.%: SERVICE=$*
