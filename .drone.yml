@@ -9,8 +9,8 @@ steps:
   image: titpetric/microservice-build
   pull: always
   commands:
-    - protoc --proto_path=$GOPATH/src:. -Irpc/stats --go_out=paths=source_relative:. rpc/stats/stats.proto
-    - protoc --proto_path=$GOPATH/src:. -Irpc/stats --twirp_out=paths=source_relative:. rpc/stats/stats.proto
+    - make rpc
     - go mod tidy > /dev/null 2>&1
     - go mod download > /dev/null 2>&1
     - go fmt ./... > /dev/null 2>&1
+    - make build
