@@ -24,3 +24,6 @@ RUN go get -u github.com/golang/protobuf/protoc-gen-go
 
 # Install protoc-gen-twirp
 RUN go get github.com/twitchtv/twirp/protoc-gen-twirp
+
+# Install interface scaffolder
+RUN go get -u github.com/josharian/impl
