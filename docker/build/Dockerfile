@@ -21,3 +21,6 @@ RUN go get -u google.golang.org/grpc
 
 # Install protoc-gen-go
 RUN go get -u github.com/golang/protobuf/protoc-gen-go
+
+# Install protoc-gen-twirp
+RUN go get github.com/twitchtv/twirp/protoc-gen-twirp

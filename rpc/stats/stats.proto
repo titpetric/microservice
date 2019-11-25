@@ -4,6 +4,10 @@ package stats;
 
 option go_package = "github.com/titpetric/microservice/rpc/stats";
 
+service StatsService {
+	rpc Push(PushRequest) returns (PushResponse);
+}
+
 message PushRequest {
 	string property = 1;
 	uint32 section = 2;

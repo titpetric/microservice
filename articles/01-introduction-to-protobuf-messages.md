@@ -1,9 +1,9 @@
 # Go: Introduction to Protobuf: Messages
 
-In it's most basic ways, protobufs are an approach to serialize structured data
-with minimal overhead. They require that the data structures be known and compatible
-between the client and server, unlike JSON where the structure itself is part of
-the encoding.
+In it's most basic ways, protocol buffers or protobufs are an approach to serialize
+structured data with minimal overhead. They require that the data structures be known
+and compatible between the client and server, unlike JSON where the structure itself
+is part of the encoding.
 
 ## Protobufs and Go
 
