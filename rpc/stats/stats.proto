@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package stats;
+
+option go_package = "github.com/titpetric/microservice/rpc/stats";
+
+message PushRequest {
+	string property = 1;
+	uint32 section = 2;
+	uint32 id = 3;
+}
+
+message PushResponse {}
