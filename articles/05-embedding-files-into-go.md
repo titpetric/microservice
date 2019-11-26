@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `migrations` (
 
 We want to embed these files into our app, and at the same time, keep them
 grouped by service, so only individual migrations for a service can be executed.
-For this purpose, we create a filesystem wrapper in `db/types.go`:
+For this purpose, we create a filesystem wrapper in `db/fs.go`:
 
 ```
 type FS map[string]string
