@@ -15,6 +15,8 @@ build.%:
 
 
 templates: $(shell ls -d rpc/* | sed -e 's/rpc\//templates./g')
+	rm db/schema_*.go db/schema.go
+	./templates/db_schema.go.sh
 	@echo OK.
 
 templates.%: export SERVICE=$*
