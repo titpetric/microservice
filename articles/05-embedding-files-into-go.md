@@ -1,4 +1,4 @@
-# Bash: embedding files into go
+# Bash: embedding files into Go
 
 There's always that chance that your Go app/service will need to bundle some
 files in order to fulfill some requirement. A common case of that is bundling

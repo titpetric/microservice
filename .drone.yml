@@ -15,3 +15,21 @@ steps:
     - go mod download > /dev/null 2>&1
     - go fmt ./... > /dev/null 2>&1
     - make build
+
+- name: migrations
+  image: percona/percona-server:8.0.17
+  user: root
+  pull: always
+  commands:
+    - yum -q -y install make
+    - "bash -c 'while : ; do  sleep 1 ; $(cat < /dev/null > /dev/tcp/mysql-test/3306) && break ; done' 2>/dev/null"
+    - make migrate
+
+services:
+- name: mysql-test
+  pull: always
+  image: percona/percona-server:8.0.17
+  ports:
+    - 3306
+  environment:
+    MYSQL_ROOT_PASSWORD: default
