@@ -148,7 +148,7 @@ func List() []string {
 
 Which leaves us with Print and Run functions. Let's start with Print, since it doesn't require us
 to set up a database just yet. The goal is to get the project filesystem and list the statements
-for the contained migrations. Let's first implement `cmd/db-migrate/main.go`:
+for the contained migrations. Let's first implement `cmd/db-migrate-cli/main.go`:
 
 ~~~go
 package main
@@ -230,11 +230,11 @@ The structure here is a bit shorter than what we expect from `Run`, as we don't 
 the statement indices in the migration struct. We print the initial migrations.sql, as well
 as every other migration contained in the migration index for the project.
 
-After running `make` and building all our binaries, we can run the `db-migrate` cli to
+After running `make` and building all our binaries, we can run the `db-migrate-cli` cli to
 verify that the migration statements are being printed.
 
 ~~~
-# ./build/db-migrate-linux-amd64
+# ./build/db-migrate-cli-linux-amd64
 2019/11/26 11:20:00 Migration projects: [stats]
 2019/11/26 11:20:00 Migration statements for stats
 2019/11/26 11:20:00 Printing migrations from migrations.sql

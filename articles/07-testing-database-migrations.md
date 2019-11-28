@@ -145,8 +145,8 @@ migrate.%: export SERVICE = $*
 migrate.%: export MYSQL_ROOT_PASSWORD = default
 migrate.%:
 	mysql -h mysql-test -u root -p$(MYSQL_ROOT_PASSWORD) -e "CREATE DATABASE $(SERVICE);"
-	./build/db-migrate-linux-amd64 -service $(SERVICE) -db-dsn "root:$(MYSQL_ROOT_PASSWORD)@tcp(mysql-test:3306)/$(SERVICE)" -real=true
-	./build/db-migrate-linux-amd64 -service $(SERVICE) -db-dsn "root:$(MYSQL_ROOT_PASSWORD)@tcp(mysql-test:3306)/$(SERVICE)" -real=true
+	./build/db-migrate-cli-linux-amd64 -service $(SERVICE) -db-dsn "root:$(MYSQL_ROOT_PASSWORD)@tcp(mysql-test:3306)/$(SERVICE)" -real=true
+	./build/db-migrate-cli-linux-amd64 -service $(SERVICE) -db-dsn "root:$(MYSQL_ROOT_PASSWORD)@tcp(mysql-test:3306)/$(SERVICE)" -real=true
 ~~~
 
 The makefile target produces the database for our service, and then runs our db-migration program.
@@ -156,7 +156,7 @@ connection DSN, and the flag `-real=true` to actually execute the migrations on 
 We run the migrations twice, so we make sure that our migration status is logged correctly as well.
 All the migrations in the second run must be skipped.
 
-Let's add support for this into `cmd/db-migrate/main.go`:
+Let's add support for this into `cmd/db-migrate-cli/main.go`:
 
 ~~~go
 package main
@@ -224,14 +224,14 @@ All that's left to see is if our migrations execute. Let's take a look at the ou
 [migrations:2] + make migrate
 [migrations:3] mysql -h mysql-test -u root -pdefault -e "CREATE DATABASE stats;"
 [migrations:4] mysql: [Warning] Using a password on the command line interface can be insecure.
-[migrations:5] ./build/db-migrate-linux-amd64 -service stats -db-dsn "root:default@tcp(mysql-test:3306)/stats" -real=true
+[migrations:5] ./build/db-migrate-cli-linux-amd64 -service stats -db-dsn "root:default@tcp(mysql-test:3306)/stats" -real=true
 [migrations:6] 2019/11/26 11:22:06 Running migrations from migrations.sql
 [migrations:7] 2019/11/26 11:22:06 Running migrations from 2019-11-26-092610-description-here.up.sql
 [migrations:8] 2019/11/26 11:22:06
 [migrations:9] 2019/11/26 11:22:06 -- Statement index: 0
 [migrations:10] 2019/11/26 11:22:06 -- Hello world
 [migrations:11] 2019/11/26 11:22:06
-[migrations:12] ./build/db-migrate-linux-amd64 -service stats -db-dsn "root:default@tcp(mysql-test:3306)/stats" -real=true
+[migrations:12] ./build/db-migrate-cli-linux-amd64 -service stats -db-dsn "root:default@tcp(mysql-test:3306)/stats" -real=true
 [migrations:13] 2019/11/26 11:22:06 Running migrations from migrations.sql
 [migrations:14] 2019/11/26 11:22:06 Running migrations from 2019-11-26-092610-description-here.up.sql
 [migrations:15] 2019/11/26 11:22:06 Migrations already applied, skipping
