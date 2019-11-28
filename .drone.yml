@@ -5,16 +5,14 @@ kind: pipeline
 name: build
 
 steps:
-- name: test
+- name: codegen
   image: titpetric/microservice-build
   pull: always
   commands:
     - make rpc
     - make templates
-    - go mod tidy > /dev/null 2>&1
-    - go mod download > /dev/null 2>&1
-    - go fmt ./... > /dev/null 2>&1
-    - make build
+    - make tidy
+    - make build-cli
 
 - name: migrations
   image: percona/percona-server:8.0.17
@@ -24,6 +22,13 @@ steps:
     - yum -q -y install make
     - "bash -c 'while : ; do  sleep 1 ; $(cat < /dev/null > /dev/tcp/mysql-test/3306) && break ; done' 2>/dev/null"
     - make migrate
+
+- name: build
+  image: titpetric/microservice-build
+  pull: always
+  commands:
+    - make tidy
+    - make build
 
 services:
 - name: mysql-test

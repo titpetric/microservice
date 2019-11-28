@@ -1,4 +1,4 @@
-.PHONY: all rpc build templates
+.PHONY: all build build-cli templates rpc migrate tidy
 
 # run the CI job for everything
 
@@ -15,6 +15,18 @@ build: $(shell ls -d cmd/* | sed -e 's/cmd\//build./')
 
 build.%: SERVICE=$*
 build.%:
+	go build -o build/$(SERVICE)-$(GOOS)-$(GOARCH) ./cmd/$(SERVICE)/*.go
+
+# build cli tooling from cmd/
+
+build-cli: export GOOS = linux
+build-cli: export GOARCH = amd64
+build-cli: export CGO_ENABLED = 0
+build-cli: $(shell ls -d cmd/*-cli | sed -e 's/cmd\//build-cli./')
+	@echo OK.
+
+build-cli.%: SERVICE=$*
+build-cli.%:
 	go build -o build/$(SERVICE)-$(GOOS)-$(GOARCH) ./cmd/$(SERVICE)/*.go
 
 
@@ -54,6 +66,13 @@ migrate: $(shell ls -d db/schema/*/migrations.sql | xargs -n1 dirname | sed -e '
 migrate.%: export SERVICE = $*
 migrate.%: export MYSQL_ROOT_PASSWORD = default
 migrate.%:
+	mkdir -p db/types
 	mysql -h mysql-test -u root -p$(MYSQL_ROOT_PASSWORD) -e "CREATE DATABASE $(SERVICE);"
-	./build/db-migrate-linux-amd64 -service $(SERVICE) -db-dsn "root:$(MYSQL_ROOT_PASSWORD)@tcp(mysql-test:3306)/$(SERVICE)" -real=true
-	./build/db-migrate-linux-amd64 -service $(SERVICE) -db-dsn "root:$(MYSQL_ROOT_PASSWORD)@tcp(mysql-test:3306)/$(SERVICE)" -real=true
+	./build/db-migrate-cli-linux-amd64 -service $(SERVICE) -db-dsn "root:$(MYSQL_ROOT_PASSWORD)@tcp(mysql-test:3306)/$(SERVICE)" -real=true
+	./build/db-migrate-cli-linux-amd64 -service $(SERVICE) -db-dsn "root:$(MYSQL_ROOT_PASSWORD)@tcp(mysql-test:3306)/$(SERVICE)" -real=true
+	./build/db-schema-cli-linux-amd64 -schema $(SERVICE) -db-dsn "root:$(MYSQL_ROOT_PASSWORD)@tcp(mysql-test:3306)/$(SERVICE)" > server/$(SERVICE)/types_db.go
+
+tidy:
+	go mod tidy > /dev/null 2>&1
+	go mod download > /dev/null 2>&1
+	go fmt ./... > /dev/null 2>&1
