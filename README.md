@@ -11,12 +11,12 @@ Initially the articles and code here is published as a series on [scene-si.org](
 - [x] Bash: embedding files into Go
 - [x] Go: listing database migrations
 - [x] Drone CI: testing database migrations
+- [x] Go: Database first struct generation,
 
 Currently this adds up to 7/24 articles.
 
 These are some tentative article titles for future articles:
 
-- [ ] Go: Database first struct generation,
 - [ ] Go: Writing our own human readable key/value decoder,
 - [ ] Go: decoding data into structs with tags,
 - [ ] Go: Generating documentation from database schema,

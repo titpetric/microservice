@@ -128,7 +128,7 @@ func renderGo(schema string, tables []*Table) error {
 				fmt.Printf("	// %s\n", column.Comment)
 			}
 			columnType, _ := resolveType(column)
-			fmt.Printf("	%s %s `db:\"%s\"`\n", camel(column.Name), columnType, column.Name)
+			fmt.Printf("	%s %s `db:\"%s\" json:\"-\"`\n", camel(column.Name), columnType, column.Name)
 		}
 		fmt.Println("}")
 		fmt.Println()
