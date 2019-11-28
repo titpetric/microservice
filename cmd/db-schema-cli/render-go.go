@@ -63,18 +63,7 @@ func isSpecial(column *Column) (specialType, bool) {
 }
 
 func renderGo(schema string, tables []*Table) error {
-	fields := []string{}
-	primary := []string{}
 	imports := []string{}
-
-	contains := func(set []string, value string) bool {
-		for _, v := range set {
-			if v == value {
-				return true
-			}
-		}
-		return false
-	}
 
 	resolveType := func(column *Column) (string, error) {
 		if val, ok := isSimple(column); ok {
@@ -120,10 +109,12 @@ func renderGo(schema string, tables []*Table) error {
 	}
 
 	for _, table := range tables {
+		fields := []string{}
+		primary := []string{}
 		if table.Comment != "" {
 			fmt.Println("//", table.Comment)
 		}
-		fmt.Printf("type %s struct {\n", Camel(table.Name))
+		fmt.Printf("type %s struct {\n", camel(table.Name))
 		for idx, column := range table.Columns {
 			fields = append(fields, column.Name)
 			if column.Key == "PRI" {
@@ -137,25 +128,24 @@ func renderGo(schema string, tables []*Table) error {
 				fmt.Printf("	// %s\n", column.Comment)
 			}
 			columnType, _ := resolveType(column)
-			fmt.Printf("	%s %s `db:\"%s\"`\n", Camel(column.Name), columnType, column.Name)
+			fmt.Printf("	%s %s `db:\"%s\"`\n", camel(column.Name), columnType, column.Name)
 		}
 		fmt.Println("}")
 		fmt.Println()
-		fmt.Printf("func (*%s) Fields() []string {\n", Camel(table.Name))
+		fmt.Printf("var %sFields []string = ", camel(table.Name))
 		if len(fields) > 0 {
-			fmt.Printf("\treturn []string{\"%s\"}\n", strings.Join(fields, "\", \""))
+			fmt.Printf("[]string{\"%s\"}", strings.Join(fields, "\", \""))
 		} else {
-			fmt.Printf("\treturn []string{}\n")
+			fmt.Printf("[]string{}")
 		}
-		fmt.Println("}")
 		fmt.Println()
-		fmt.Printf("func (*%s) PrimaryFields() []string {\n", Camel(table.Name))
+		fmt.Printf("var %sPrimaryFields []string = ", camel(table.Name))
 		if len(primary) > 0 {
-			fmt.Printf("\treturn []string{\"%s\"}\n", strings.Join(primary, "\", \""))
+			fmt.Printf("[]string{\"%s\"}", strings.Join(primary, "\", \""))
 		} else {
-			fmt.Printf("\treturn []string{}\n")
+			fmt.Printf("[]string{}")
 		}
-		fmt.Println("}")
+		fmt.Println()
 	}
 	return nil
 }
