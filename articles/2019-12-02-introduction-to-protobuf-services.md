@@ -1,37 +1,53 @@
-# Go: Introduction to protobufs RPC
+# Go: Introduction to protobuf: Services
 
-Remote procedure calls are also built into the proto file schema. Let's extend our proto definitions for
-`stats.proto`, by including a service with a defined RPC.
+The next step (or possibly the first step) about implementing a microservice, is defining
+it's API endpoints. What people usually do is write http handlers and resort to a routing
+framework like [go-chi/chi](https://github.com/go-chi/chi). But, protocol buffers can define
+your service, as RPC calls definitions are built into the protobuf schema.
 
-~~~proto
+## Protobuf service definitions
+
+Protobuf files may define a `service` object, which has definitions for one or many `rpc` calls.
+Let's extend our proto definitions for `stats.proto`, by including a service with a defined RPC.
+
+~~~protobuf
 service StatsService {
 	rpc Push(PushRequest) returns (PushResponse);
 }
 ~~~
 
-The service definition here declares a RPC named `Push`, which takes a message `PushRequest` as it's input,
-and returns the message `PushResponse` as it's output. All RPC definitions should follow the same pattern
-as a best practice. This way you can extend PushRequest and PushResponse, without introducing breaking changes
-to the RPC definition as well.
+A RPC method is defined with the `rpc` keyword. The service definition here declares a RPC named `Push`,
+which takes a message `PushRequest` as it's input, and returns the message `PushResponse` as it's output.
+All RPC definitions should follow the same naming pattern as a best practice. This way you can extend
+PushRequest and PushResponse, without introducing breaking changes to the RPC definition as well.
 
 Updating the `.proto` file definitions in our project by default doesn't change anything. We need to generate
 a RPC scaffold using a RPC framework. For Go RPCs, we can consider GRPC from the beginning, or we can look
 towards a more simple [Twitch RPC aka. Twirp](https://github.com/twitchtv/twirp).
 
-The two main factors in choosing one over the other (or even to implement both), is how they are implemented.
-A major pitfall of GRPC from my point of view is that GRPC implements it's own HTTP/2 server, so it doesn't
-use the standard library `net/http` package. While we don't need to dive into GRPC internals, it's even
-better if we preemptively avoid it.
+Common reasons for choosing Twirp over GRPC are as follows:
 
-Twitch RPC/Twirp however is built on the standard `net/http` package, and supports both the Protobuf transport
-and JSON, while JSON would still need to be an add-on for GRPC. The two frameworks start to differ more when it
-comes to higher level networking details or specific support for streaming RPCs.
-Twitch RPC has [an open proposal for streaming APIs](https://github.com/twitchtv/twirp/issues/70) while this is
-something that GRPC supports out of the box.
+- Twirp comes with HTTP 1.1 support (vendors need to catch up to HTTP/2 still),
+- Twirp supports JSON transport out of the gate,
+- GRPC re-implements HTTP/2 outside of net/http,
+
+And reasons for GRPC over Twirp are:
+
+- GRPC supports streaming (Twirp has [an open proposal for streaming APIs](https://github.com/twitchtv/twirp/issues/70))
+- GRPC makes wire compatibility promises (this is built in to protobufs)
+- More functionality on the networking level (retries, rpc discovery,...)
+
+JSON would be the preferable format to demonstrate payloads, especially in terms of inspecting/sharing the payloads
+in documentation and similar. While GRPC is written by Google, there are many tools that you'd have to add in to make
+it a bit more developer friendly - [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) to add HTTP/1.1,
+and [grpcurl](https://github.com/fullstorydev/grpcurl) to issue json-protobuf bridged requests.
+
+GRPC is a much more rich RPC framework, supporting a wider array of use cases. If you feel that you need RPC streaming
+or API discovery, or your use cases lay beyond a simple request/response model, GRPC might be your only option.
 
 ## Our microservice
 
-We'll be dealing with Twitch RPC from here on out, since it serves most our requirements.
+We'll be dealing with Twitch RPC from here on out, since it serves our requirements.
 
 About 10 years back I wrote a relatively simple microservice that is basically just tracking news item views. That
 solution is proving to be unmaintainable 10 years later at best, but still pretty good so it manages 0-1ms/request.
@@ -40,7 +56,7 @@ the service is tracking views in a multi-tennant way, for a predefined set of ap
 
 Let's refresh what our current service definition is:
 
-~~~proto
+~~~protobuf
 service StatsService {
 	rpc Push(PushRequest) returns (PushResponse);
 }
@@ -66,7 +82,7 @@ The aggregation itself is needed to provide data sets like "Most read news over 
 ## Twitch RPC scaffolding
 
 The main client and server code generators for Twitch RPC are listed in the README for [twitchtv/twirp](https://github.com/twitchtv/twirp).
-Our code generator is available from `github.com/twitchtv/twirp/protoc-gen-twirp`. We will add this to our dockerfile:
+The code generator we will use is available from `github.com/twitchtv/twirp/protoc-gen-twirp`. We will add this to our dockerfile:
 
 ~~~diff
 --- a/docker/build/Dockerfile
@@ -101,7 +117,7 @@ one type of output to bleed into other generator rules.
 The above command will generate a `stats.twirp.go` file in the same folder as `stats.proto` file. The important
 part for our implementation is the following interface:
 
-~~~
+~~~go
 type StatsService interface {
         Push(context.Context, *PushRequest) (*PushResponse, error)
 }
