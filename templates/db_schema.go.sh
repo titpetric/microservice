@@ -9,7 +9,7 @@ function base64_encode {
 ## generate a service FS
 function render_service_schema {
 	local schema=$(basename $1)
-	echo "package db;"
+	echo "package db"
 	echo
 	echo "var $schema FS = FS{"
 	local files=$(find $1 -name '*.sql' | sort)
@@ -21,7 +21,7 @@ function render_service_schema {
 
 ## list all service FS into `migrations` global
 function render_schema {
-	echo "package db;"
+	echo "package db"
 	echo
 	echo "var migrations map[string]FS = map[string]FS{"
 	for schema in $schemas; do
@@ -40,6 +40,8 @@ for schema in $schemas; do
 	output="db/${schema_relative/\//_}.go"
 
 	render_service_schema $schema > $output
+	echo "~ $output"
 done
 
 render_schema > db/schema.go
+echo "~ db/schema.go"
