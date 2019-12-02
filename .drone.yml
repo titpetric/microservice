@@ -28,6 +28,7 @@ steps:
   pull: always
   commands:
     - make tidy
+    - wire ./...
     - make build
 
 services:
