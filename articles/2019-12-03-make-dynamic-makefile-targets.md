@@ -15,7 +15,7 @@ The first target that we want to support is running all code generation required
 for our RPC services. We define a `rpc` makefile target, and use dynamic execution
 to build a list of dynamic targets:
 
-~~~make
+~~~Makefile
 rpc: $(shell ls -d rpc/* | sed -e 's/\//./')
 ~~~
 
@@ -23,7 +23,7 @@ Here we use the make built-in feature to run a shell, and so define our dynamic 
 For each folder found under `rpc/`, a target like `rpc.{folder}` is created. For example,
 if we wanted to build the code for a target, we could do:
 
-~~~make
+~~~Makefile
 rpc.stats:
 	protoc --proto_path=$GOPATH/src:. -Irpc/stats --go_out=paths=source_relative:. rpc/stats/stats.proto
 	protoc --proto_path=$GOPATH/src:. -Irpc/stats --twirp_out=paths=source_relative:. rpc/stats/stats.proto
@@ -79,7 +79,7 @@ For each service, we will create a `cmd/{service}/*.go` structure, containing at
 Let's start with adding a simple `cmd/stats/main.go` with a hello world to greet us. We will come
 back and scaffold the actual service later.
 
-~~~
+~~~go
 package main
 
 void main() {
@@ -93,7 +93,7 @@ void main() {
 
 Now, we want our app to build all the applications under `cmd/`, by running `make build`.
 
-~~~
+~~~Makefile
 build: export GOOS = linux
 build: export GOARCH = amd64
 build: export CGO_ENABLED = 0
