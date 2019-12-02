@@ -3,14 +3,13 @@ package stats
 import (
 	"context"
 
+	"github.com/jmoiron/sqlx"
+
 	"github.com/titpetric/microservice/rpc/stats"
 )
 
 type Server struct {
-}
-
-func New(ctx context.Context) (*Server, error) {
-	return &Server{}, nil
+	db *sqlx.DB
 }
 
 var _ stats.StatsService = &Server{}

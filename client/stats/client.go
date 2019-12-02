@@ -13,6 +13,6 @@ func New() stats.StatsService {
 	return NewCustom("http://stats.service:3000", &http.Client{})
 }
 
-func NewCustom(addr string, client *http.Client) stats.StatsService {
+func NewCustom(addr string, client stats.HTTPClient) stats.StatsService {
 	return stats.NewStatsServiceJSONClient(addr, client)
 }
