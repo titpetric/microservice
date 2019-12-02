@@ -32,20 +32,26 @@ build-cli.%:
 
 # code generator for client/server/cmd
 
+templates: export MODULE=$(shell grep ^module go.mod | sed -e 's/module //g')
 templates: $(shell ls -d rpc/* | sed -e 's/rpc\//templates./g')
-	rm db/schema_*.go db/schema.go
-	./templates/db_schema.go.sh
+	@rm db/schema_*.go db/schema.go
+	@./templates/db_schema.go.sh
+	@./templates/client_wire.go.sh
+	go fmt ./...
 	@echo OK.
 
 templates.%: export SERVICE=$*
 templates.%: export SERVICE_CAMEL=$(shell echo $(SERVICE) | sed -r 's/(^|_)([a-z])/\U\2/g')
 templates.%: export MODULE=$(shell grep ^module go.mod | sed -e 's/module //g')
 templates.%:
-	mkdir -p cmd/$(SERVICE) client/$(SERVICE) server/$(SERVICE)
-	envsubst < templates/cmd_main.go.tpl > cmd/$(SERVICE)/main.go
-	envsubst < templates/client_client.go.tpl > client/$(SERVICE)/client.go
-	envsubst < templates/server_server.go.tpl > server/$(SERVICE)/server.go
-	impl -dir rpc/$(SERVICE) 'svc *Server' $(SERVICE).$(SERVICE_CAMEL)Service >> server/$(SERVICE)/server.go
+	@mkdir -p cmd/$(SERVICE) client/$(SERVICE) server/$(SERVICE)
+	@envsubst < templates/cmd_main.go.tpl > cmd/$(SERVICE)/main.go
+	@echo "~ cmd/$(SERVICE)/main.go"
+	@envsubst < templates/client_client.go.tpl > client/$(SERVICE)/client.go
+	@echo "~ client/$(SERVICE)/client.go"
+	@./templates/server_server.go.sh
+	@envsubst < templates/server_wire.go.tpl > server/$(SERVICE)/wire.go
+	@echo "~ server/$(SERVICE)/wire.go"
 
 # rpc generators
 
