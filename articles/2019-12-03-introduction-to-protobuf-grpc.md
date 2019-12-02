@@ -1,4 +1,4 @@
-# Go: Introduction to protobuf: GRPC
+# Go: Introduction to Protobuf: GRPC
 
 We implemented a Twitch RPC generator in the previous chapter, but we
 do have some hard core GRPC fans that requested that I should check out

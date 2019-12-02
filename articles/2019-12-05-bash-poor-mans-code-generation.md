@@ -1,4 +1,4 @@
-# Bash: poor mans code generation
+# Bash: Poor mans code generation
 
 When it comes to generating code, I often find that the simplest code generation
 only needs variable replacement. There's a cli utility that already facilitates

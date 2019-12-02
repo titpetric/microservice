@@ -1,4 +1,4 @@
-# Go: listing database migrations
+# Go: Listing database migrations
 
 As we prepared the database migration files and embedded them into the db package,
 we are now left to implement the details required to process these migrations. Let's

@@ -1,4 +1,4 @@
-# Drone CI: testing database migrations
+# Drone CI: Testing database migrations
 
 Since we can now list our database migrations, the next logical step is testing
 them out on a real database. For that we still need to implement our Run function.

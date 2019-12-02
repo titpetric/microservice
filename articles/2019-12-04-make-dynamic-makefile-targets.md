@@ -1,4 +1,4 @@
-# Make: dynamic makefile targets
+# Make: Dynamic Makefile targets
 
 A common pattern which we want to support when building our services is to build
 everything under `rpc/{service}/{service}.proto` as well as `cmd/*` and other

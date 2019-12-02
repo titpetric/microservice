@@ -1,4 +1,4 @@
-# Go: Introduction to protobuf: Services
+# Go: Introduction to Protobuf: Services
 
 The next step (or possibly the first step) about implementing a microservice, is defining
 it's API endpoints. What people usually do is write http handlers and resort to a routing
