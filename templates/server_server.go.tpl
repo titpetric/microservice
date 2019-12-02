@@ -3,14 +3,13 @@ package ${SERVICE}
 import (
 	"context"
 
+	"github.com/jmoiron/sqlx"
+
 	"${MODULE}/rpc/${SERVICE}"
 )
 
 type Server struct {
-}
-
-func New(ctx context.Context) (*Server, error) {
-	return &Server{}, nil
+	db *sqlx.DB
 }
 
 var _ ${SERVICE}.${SERVICE_CAMEL}Service = &Server{}
