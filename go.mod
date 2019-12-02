@@ -10,4 +10,5 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/twitchtv/twirp v5.9.0+incompatible
 	google.golang.org/appengine v1.6.5 // indirect
+	google.golang.org/grpc v1.25.1
 )
