@@ -27,3 +27,6 @@ RUN go get github.com/twitchtv/twirp/protoc-gen-twirp
 
 # Install interface scaffolder
 RUN go get -u github.com/josharian/impl
+
+# Install google wire for DI
+RUN go get -u github.com/google/wire/cmd/wire
