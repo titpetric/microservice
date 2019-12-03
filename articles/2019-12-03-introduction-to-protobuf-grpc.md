@@ -50,12 +50,11 @@ type StatsService interface {
 
 So, first, we see that the implementation for our Twitch RPC service is
 compatible with our GRPC server. This means that our workflow will not
-change a single bit, if we decide to migrate from Twitch to GRPC for any
-concievable use case. Also, it means that we can run a single service,
-which exposes both GRPC, and Twirp endpoints. Maintaining them both seems
-like a bad idea, but as we don't have any Twirp specific implementation
-in our service itself, it seems like we can manage to run both without
-difficulty.
+change a single bit, if we decide to migrate from Twitch to GRPC can run
+a single service, which exposes both GRPC and Twirp endpoints.
+Maintaining them both seems like a bad idea, but as we don't have
+any Twirp specific implementation in our service itself, it seems
+like we can manage to run both endpoints without difficulty.
 
 The difference seems to be in the client itself:
 
@@ -85,7 +84,7 @@ APIs, of the listed options currently:
 
 So, to summarize - out of all those options, 3 are EXPERIMENTAL, 2 are DEPRECATED and one of
 them is pointing to an EXPERIMENTAL option, and the biggest question raised is how the GRPC
-client behaves in relation to WaitForReady, and which option should be used here.
+client behaves in relation to WaitForReady, and which option is recommended if any.
 
 What we can also see is that the GRPC client can authenticate to the GRPC server via
 the PerRPCCredentials option. This is also something that Twitch RPC doesn't provide for us.
@@ -94,5 +93,7 @@ the level of security inside your service mesh.
 
 We won't create the GRPC server just yet, but we'll keep this codegen option enabled for the future.
 As we already discussed, GRPC is a great framework to have when we have clients that can speak
-it natively. It's not great for the browser or the javascript console, but using the proto files
-to generate the clients for Android/iPhone apps is a valid use case.
+it natively. It's not great for the browser or the javascript console (am I wrong?), and it's definitely
+not great for debugging/sniffing traffic, but using the proto files to generate the clients for
+Android/iPhone apps is a valid use case. GRPC has wider code generation support than Twirp and
+is a better option if you want to cover a larger ecosystem.
