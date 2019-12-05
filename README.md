@@ -13,21 +13,29 @@ Initially the articles and code here is published as a series on [scene-si.org](
 - [x] Drone CI: testing database migrations
 - [x] Go: Database first struct generation,
 
-Currently this adds up to 7/24 articles.
+Currently this adds up to 8/24 articles.
+
+WIP:
+
+- [x] Elastic APC: Instrumenting your RPC,
+- [x] Elastic APC: Instrumenting your SQL,
+- [ ] Elastic APC: Instrumenting the HTTP client,
+
 
 These are some tentative article titles for future articles:
 
-- [ ] Go: Writing our own human readable key/value decoder,
-- [ ] Go: decoding data into structs with tags,
 - [ ] Go: Generating documentation from database schema,
-- [ ] Drone CI: secrets and docker image building,
+- [ ] Tentative: Drone CI: secrets and docker image building,
 - [ ] Docker service security,
-- [ ] Elastic APC: Instrumenting your RPC,
-- [ ] Elastic APC: Instrumenting your SQL,
-- [ ] Elastic APC: Instrumenting the HTTP client,
 - [ ] Docker: compose service gateway (self hosted) (jwilder/nginx-proxy or traefik?)
 - [ ] Running a docker swarm microservice,
-- [ ] Difference between docker compose and stack deploy
+- [ ] Tentative: Difference between docker compose and stack deploy
+
+Abandoned:
+
+- [ ] Go: Writing our own human readable key/value decoder,
+- [ ] Go: decoding data into structs with tags,
+
 
 The order of the articles (until they are written) is undefined. The complete guide
 is a step by step process where knowledge and the results from previous steps are

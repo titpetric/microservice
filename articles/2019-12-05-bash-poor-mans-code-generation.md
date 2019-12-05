@@ -139,8 +139,8 @@ Let's start by adding an interface scaffolding utility to our build environment 
 RUN go get -u github.com/josharian/impl
 ~~~
 
-Using `impl`, we can generate a scaffold of the interface which we need to satisfy. We can now
-create the server side template like this:
+Using [josharian/impl](https://github.com/josharian/impl), we can generate a scaffold
+of the interface which we need to satisfy. We can now create the server side template like this:
 
 ~~~go
 package ${SERVICE}
@@ -175,10 +175,55 @@ templates.%:
 ~~~
 
 After checking that the stubs are generated, running `make` will successfully build our project.
-Looking at our service, we are left to implement a single function:
+Looking at our service, we are left to implement the function defined in the server interface:
 
 ~~~
 func (svc *Server) Push(_ context.Context, _ *stats.PushRequest) (*stats.PushResponse, error) {
 	panic("not implemented") // TODO: Implement
 }
 ~~~
+
+We also want to generate our server.go file only if it doesn't exist - we only want to scaffold it for the first
+time, and checking file existance in Makefile is difficult, so let's move this into a bash script, and adjust
+the verbosity/output of the complete templates target:
+
+~~~Makefile
+templates.%:
+	@mkdir -p cmd/$(SERVICE) client/$(SERVICE) server/$(SERVICE)
+	@envsubst < templates/cmd_main.go.tpl > cmd/$(SERVICE)/main.go
+	@echo "~ cmd/$(SERVICE)/main.go"
+	@envsubst < templates/client_client.go.tpl > client/$(SERVICE)/client.go
+	@echo "~ client/$(SERVICE)/client.go"
+	@./templates/server_server.go.sh
+~~~
+
+The `@` command suppresses the output of the command being run, and we output `~ file.go` for each file
+being written. Our `server_server.go.sh` has checks for the existance of our server.go file:
+
+~~~bash
+#!/bin/bash
+cd $(dirname $(dirname $(readlink -f $0)))
+
+if [ -z "${SERVICE}" ]; then
+	echo "Usage: SERVICE=[name] SERVICE_CAMEL=[Name] $0"
+	exit 255
+fi
+
+OUTPUT="server/${SERVICE}/server.go"
+
+# only generate server.go if it doesn't exist
+if [ ! -f "$OUTPUT" ]; then
+	envsubst < templates/server_server.go.tpl > $OUTPUT
+	impl -dir rpc/${SERVICE} 'svc *Server' ${SERVICE}.${SERVICE_CAMEL}Service >> $OUTPUT
+	echo "~ $OUTPUT"
+fi
+~~~
+
+This should give us a good start for our scaffolding. The correct and most optimal way to plan your
+services would be to take your time planning the proto schema, and then let the scaffolding take you
+to a place where you only need to implement the defined RPCs.
+
+With more fluid and changing requirements, you will not really take advantage of the code generation
+when you'll be updating the proto file during development. Adding new RPC calls will mean you'll have
+to define the new functions by hand, which isn't really that bad with ~3 SLOC, but still isn't ideal
+for anything other than a microservice with only a few function calls. Planning saves time.

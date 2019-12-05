@@ -3,7 +3,10 @@
 We implemented a Twitch RPC generator in the previous chapter, but we
 do have some hard core GRPC fans that requested that I should check out
 what GRPC produces. I am interested into comparing these two as well,
-so let's start by scaffolding our GRPC handlers.
+so let's start by scaffolding our GRPC handlers. Our main goal is to compare
+the implementation details of GRPC over Twitch RPC in more concrete terms.
+
+## Generating the GRPC scaffolding
 
 We need to modify the `Makefile` slightly, in order to include the `grpc`
 codegen plugin, by changing a protoc option:
@@ -28,6 +31,8 @@ is `prometheus/client_model`. This might mean that the GRPC server implementatio
 internals support some custom prometheus metrics out of the box. We definitely
 don't get that from Twitch RPC, but we are planning to add on instrumentation.
 
+## Comparing the server side
+
 Inspecting the changed `*.pb.go` files, we can compare the interface produced
 by Twitch RPC, and what GRPC produces. The GRPC protoc generator produces two
 distinct interfaces, `StatsServiceClient` and `StatsServiceServer`. As we are
@@ -50,11 +55,14 @@ type StatsService interface {
 
 So, first, we see that the implementation for our Twitch RPC service is
 compatible with our GRPC server. This means that our workflow will not
-change a single bit, if we decide to migrate from Twitch to GRPC can run
-a single service, which exposes both GRPC and Twirp endpoints.
+change a single bit, if we decide to migrate from Twitch to GRPC.
+
+We can run a single service, which exposes both GRPC and Twirp endpoints.
 Maintaining them both seems like a bad idea, but as we don't have
 any Twirp specific implementation in our service itself, it seems
 like we can manage to run both endpoints without difficulty.
+
+## Comparing the client side
 
 The difference seems to be in the client itself:
 
@@ -85,6 +93,29 @@ APIs, of the listed options currently:
 So, to summarize - out of all those options, 3 are EXPERIMENTAL, 2 are DEPRECATED and one of
 them is pointing to an EXPERIMENTAL option, and the biggest question raised is how the GRPC
 client behaves in relation to WaitForReady, and which option is recommended if any.
+
+In comparison, Twitch RPC produces, at least in my opinion, a nicer interface for specific clients:
+
+~~~go
+// NewStatsServiceProtobufClient creates a Protobuf client that implements the StatsService interface.
+func NewStatsServiceProtobufClient(addr string, client HTTPClient) StatsService {
+...
+
+// NewStatsServiceJSONClient creates a JSON client that implements the StatsService interface.
+func NewStatsServiceJSONClient(addr string, client HTTPClient) StatsService {
+...
+~~~
+
+GRPC could benefit from some interface deduplication here. The GRPC clients constructor could
+take those particular call options so both the client and server could conform to the same interface.
+Also, much as the server side implementation, it's also obvious that GRPC implements the client
+side as well, as the transport isn't based on net/http:
+
+~~~go
+// NewStatsServiceClient creates a GRPC client that implements the StatsServiceClient interface.
+func NewStatsServiceClient(cc *grpc.ClientConn) StatsServiceClient {
+...
+~~~
 
 What we can also see is that the GRPC client can authenticate to the GRPC server via
 the PerRPCCredentials option. This is also something that Twitch RPC doesn't provide for us.

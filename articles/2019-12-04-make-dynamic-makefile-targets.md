@@ -64,7 +64,7 @@ With the `@` prefix on individual commands in the target, we suppress the output
 All we need to do is update the step in `.drone.yml` into `make rpc`, and we have support for
 a dynamic number of services. Running make verifies this:
 
-~~~
+~~~plaintext
 # make
 [test:0] + make rpc
 [test:1] > protoc gen for stats
@@ -91,7 +91,8 @@ void main() {
 > It shouldn't really be used, but as far as providing some test output, it's the shortest
 > way to do that. We will throw this program away, so don't pay it much attention.
 
-Now, we want our app to build all the applications under `cmd/`, by running `make build`.
+Using what we learned for dynamic targets with the `rpc` target, let's create a `build`
+target which will build all the applications we will put under `cmd/` by running `make build`.
 
 ~~~Makefile
 build: export GOOS = linux

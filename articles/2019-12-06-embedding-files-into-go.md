@@ -46,9 +46,9 @@ We want to embed these files into our app, and at the same time, keep them
 grouped by service, so only individual migrations for a service can be executed.
 For this purpose, we create a filesystem wrapper in `db/fs.go`:
 
-```
+~~~go
 type FS map[string]string
-```
+~~~
 
 Well, that was anti-climactic. If you expected some over-engineering here, it really
 isn't the point - we're going for simplicity here. The filesystem takes the filename
