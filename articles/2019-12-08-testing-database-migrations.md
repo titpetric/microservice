@@ -137,7 +137,7 @@ Here we slightly hacked together support for running the migrations by:
 
 And the Makefile target should look like this:
 
-~~~
+~~~Makefile
 migrate: $(shell ls -d db/schema/*/migrations.sql | xargs -n1 dirname | sed -e 's/db.schema./migrate./')
 	@echo OK.
 
@@ -196,12 +196,12 @@ func main() {
 		if handle, err := sqlx.Connect(config.db.Driver, config.db.DSN); err != nil {
 			log.Fatalf("Error connecting to database: %+v", err)
 		} else {
-			if err := db.Run("stats", handle); err != nil {
+			if err := db.Run(service.Driver, handle); err != nil {
 				log.Fatalf("An error occured: %+v", err)
 			}
 		}
 	default:
-		if err := db.Print("stats"); err != nil {
+		if err := db.Print(service.Driver); err != nil {
 			log.Fatalf("An error occured: %+v", err)
 		}
 	}
@@ -218,7 +218,7 @@ Here we do a couple of things:
 
 All that's left to see is if our migrations execute. Let's take a look at the output of our migration target:
 
-~~~text
+~~~plaintext
 [migrations:0] + yum -q -y install make
 [migrations:1] + bash -c 'while : ; do  sleep 1 ; $(cat < /dev/null > /dev/tcp/mysql-test/3306) && break ; done' 2>/dev/null
 [migrations:2] + make migrate
