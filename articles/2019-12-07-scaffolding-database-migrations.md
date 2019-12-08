@@ -1,4 +1,4 @@
-# Go: Listing database migrations
+# Go: Scaffolding database migrations
 
 As we prepared the database migration files and embedded them into the db package,
 we are now left to implement the details required to process these migrations. Let's
@@ -68,7 +68,7 @@ The fields are as follows:
 - `statement_index` - the sequential statement index from a migration,
 - `status` - this will either be "ok", or the error produced from a failing migration
 
-To exmplain `statement_index`: each migration can be several SQL queries. A common case is
+To explain `statement_index`: each migration can be several SQL queries. A common case is
 to import the complete database schema inside one migration, where a migration will be several
 `CREATE TABLE` statements in a single file. We need to split this file with a delimiter `;`,
 which should be at the end of the line. For this we can use the `;$` regular expression to
@@ -148,7 +148,7 @@ func List() []string {
 
 Which leaves us with Print and Run functions. Let's start with Print, since it doesn't require us
 to set up a database just yet. The goal is to get the project filesystem and list the statements
-for the contained migrations. Let's first implement `cmd/db-migrate-cli/main.go`:
+for the contained migrations. Let's implement `cmd/db-migrate-cli/main.go`:
 
 ~~~go
 package main
@@ -233,7 +233,7 @@ as every other migration contained in the migration index for the project.
 After running `make` and building all our binaries, we can run the `db-migrate-cli` cli to
 verify that the migration statements are being printed.
 
-~~~
+~~~plaintext
 # ./build/db-migrate-cli-linux-amd64
 2019/11/26 11:20:00 Migration projects: [stats]
 2019/11/26 11:20:00 Migration statements for stats
