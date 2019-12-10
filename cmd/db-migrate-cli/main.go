@@ -35,12 +35,12 @@ func main() {
 		if handle, err := sqlx.Connect(config.db.Driver, config.db.DSN); err != nil {
 			log.Fatalf("Error connecting to database: %+v", err)
 		} else {
-			if err := db.Run("stats", handle); err != nil {
+			if err := db.Run(config.Service, handle); err != nil {
 				log.Fatalf("An error occured: %+v", err)
 			}
 		}
 	default:
-		if err := db.Print("stats"); err != nil {
+		if err := db.Print(config.Service); err != nil {
 			log.Fatalf("An error occured: %+v", err)
 		}
 	}
