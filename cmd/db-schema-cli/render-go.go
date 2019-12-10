@@ -1,8 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"log"
+	"os"
+	"path"
 	"strings"
+
+	"go/format"
+	"io/ioutil"
 
 	"github.com/pkg/errors"
 )
@@ -62,7 +69,12 @@ func isSpecial(column *Column) (specialType, bool) {
 	return val, ok
 }
 
-func renderGo(schema string, tables []*Table) error {
+func renderGo(basePath string, schema string, tables []*Table) error {
+	// create output folder
+	if err := os.MkdirAll(basePath, 0755); err != nil {
+		return err
+	}
+
 	imports := []string{}
 
 	resolveType := func(column *Column) (string, error) {
@@ -95,26 +107,28 @@ func renderGo(schema string, tables []*Table) error {
 		}
 	}
 
-	fmt.Printf("package %s\n", schema)
-	fmt.Println()
+	buf := bytes.NewBuffer([]byte{})
+
+	fmt.Fprintf(buf, "package %s\n", schema)
+	fmt.Fprintln(buf)
 
 	// Print collected imports
 	if len(imports) > 0 {
-		fmt.Println("import (")
+		fmt.Fprintln(buf, "import (")
 		for _, val := range imports {
-			fmt.Printf("\t\"%s\"\n", val)
+			fmt.Fprintf(buf, "\t\"%s\"\n", val)
 		}
-		fmt.Println(")")
-		fmt.Println()
+		fmt.Fprintln(buf, ")")
+		fmt.Fprintln(buf)
 	}
 
 	for _, table := range tables {
 		fields := []string{}
 		primary := []string{}
 		if table.Comment != "" {
-			fmt.Println("//", table.Comment)
+			fmt.Fprintln(buf, "//", table.Comment)
 		}
-		fmt.Printf("type %s struct {\n", camel(table.Name))
+		fmt.Fprintf(buf, "type %s struct {\n", camel(table.Name))
 		for idx, column := range table.Columns {
 			fields = append(fields, column.Name)
 			if column.Key == "PRI" {
@@ -123,29 +137,46 @@ func renderGo(schema string, tables []*Table) error {
 
 			if column.Comment != "" {
 				if idx > 0 {
-					fmt.Println()
+					fmt.Fprintln(buf)
 				}
-				fmt.Printf("	// %s\n", column.Comment)
+				fmt.Fprintf(buf, "	// %s\n", column.Comment)
 			}
 			columnType, _ := resolveType(column)
-			fmt.Printf("	%s %s `db:\"%s\" json:\"-\"`\n", camel(column.Name), columnType, column.Name)
+			fmt.Fprintf(buf, "	%s %s `db:\"%s\" json:\"-\"`\n", camel(column.Name), columnType, column.Name)
 		}
-		fmt.Println("}")
-		fmt.Println()
-		fmt.Printf("var %sFields []string = ", camel(table.Name))
+		fmt.Fprintln(buf, "}")
+		fmt.Fprintln(buf)
+		fmt.Fprintf(buf, "const %sTable = \"%s\"", camel(table.Name), table.Name)
+		fmt.Fprintln(buf)
+		fmt.Fprintf(buf, "var %sFields = ", camel(table.Name))
 		if len(fields) > 0 {
-			fmt.Printf("[]string{\"%s\"}", strings.Join(fields, "\", \""))
+			fmt.Fprintf(buf, "[]string{\"%s\"}", strings.Join(fields, "\", \""))
 		} else {
-			fmt.Printf("[]string{}")
+			fmt.Fprintf(buf, "[]string{}")
 		}
-		fmt.Println()
-		fmt.Printf("var %sPrimaryFields []string = ", camel(table.Name))
+		fmt.Fprintln(buf)
+		fmt.Fprintf(buf, "var %sPrimaryFields = ", camel(table.Name))
 		if len(primary) > 0 {
-			fmt.Printf("[]string{\"%s\"}", strings.Join(primary, "\", \""))
+			fmt.Fprintf(buf, "[]string{\"%s\"}", strings.Join(primary, "\", \""))
 		} else {
-			fmt.Printf("[]string{}")
+			fmt.Fprintf(buf, "[]string{}")
 		}
-		fmt.Println()
+		fmt.Fprintln(buf)
 	}
-	return nil
+
+	filename := path.Join(basePath, "types_db.go")
+	contents := buf.Bytes()
+
+	formatted, err := format.Source(contents)
+	if err != nil {
+		// fall back to unformatted source to inspect
+		// the saved file for the error which occured
+		formatted = contents
+		log.Println("An error occured while formatting the go source: %s", err)
+		log.Println("Saving the unformatted code")
+	}
+
+	fmt.Println(filename)
+
+	return ioutil.WriteFile(filename, formatted, 0644)
 }

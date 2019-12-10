@@ -14,5 +14,7 @@ type Migrations struct {
 	Status string `db:"status" json:"-"`
 }
 
-var MigrationsFields []string = []string{"project", "filename", "statement_index", "status"}
-var MigrationsPrimaryFields []string = []string{"project", "filename"}
+const MigrationsTable = "migrations"
+
+var MigrationsFields = []string{"project", "filename", "statement_index", "status"}
+var MigrationsPrimaryFields = []string{"project", "filename"}

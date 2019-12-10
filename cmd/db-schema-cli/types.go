@@ -7,9 +7,7 @@ type Table struct {
 	Columns []*Column
 }
 
-func (*Table) Fields() []string {
-	return []string{"TABLE_NAME", "TABLE_COMMENT"}
-}
+var TableFields = []string{"TABLE_NAME", "TABLE_COMMENT"}
 
 type Column struct {
 	Name    string `db:"COLUMN_NAME"`
@@ -21,6 +19,4 @@ type Column struct {
 	DataType string `db:"DATA_TYPE"`
 }
 
-func (*Column) Fields() []string {
-	return []string{"COLUMN_NAME", "COLUMN_TYPE", "COLUMN_KEY", "COLUMN_COMMENT", "DATA_TYPE"}
-}
+var ColumnFields = []string{"COLUMN_NAME", "COLUMN_TYPE", "COLUMN_KEY", "COLUMN_COMMENT", "DATA_TYPE"}

@@ -10,7 +10,7 @@ all:
 build: export GOOS = linux
 build: export GOARCH = amd64
 build: export CGO_ENABLED = 0
-build: $(shell ls -d cmd/* | sed -e 's/cmd\//build./')
+build: $(shell ls -d cmd/* | grep -v "\-cli" | sed -e 's/cmd\//build./')
 	@echo OK.
 
 build.%: SERVICE=$*
@@ -76,7 +76,8 @@ migrate.%:
 	mysql -h mysql-test -u root -p$(MYSQL_ROOT_PASSWORD) -e "CREATE DATABASE $(SERVICE);"
 	./build/db-migrate-cli-linux-amd64 -service $(SERVICE) -db-dsn "root:$(MYSQL_ROOT_PASSWORD)@tcp(mysql-test:3306)/$(SERVICE)" -real=true
 	./build/db-migrate-cli-linux-amd64 -service $(SERVICE) -db-dsn "root:$(MYSQL_ROOT_PASSWORD)@tcp(mysql-test:3306)/$(SERVICE)" -real=true
-	./build/db-schema-cli-linux-amd64 -schema $(SERVICE) -db-dsn "root:$(MYSQL_ROOT_PASSWORD)@tcp(mysql-test:3306)/$(SERVICE)" > server/$(SERVICE)/types_db.go
+	./build/db-schema-cli-linux-amd64 -schema $(SERVICE) -db-dsn "root:$(MYSQL_ROOT_PASSWORD)@tcp(mysql-test:3306)/$(SERVICE)" -format go -output server/$(SERVICE)
+	./build/db-schema-cli-linux-amd64 -schema $(SERVICE) -db-dsn "root:$(MYSQL_ROOT_PASSWORD)@tcp(mysql-test:3306)/$(SERVICE)" -format markdown -output docs/schema/$(SERVICE)
 
 tidy:
 	go mod tidy > /dev/null 2>&1
