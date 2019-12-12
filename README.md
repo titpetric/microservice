@@ -4,16 +4,20 @@ DevOPS/Docker/Go Advent of Code 2019
 
 Initially the articles and code here is published as a series on [scene-si.org](https://scene-si.org).
 
-- [x] Go: Introduction to Protobuf: Messages
-- [x] Go: Introduction to protobufs RPC
-- [x] Make: dynamic makefile targets
-- [x] Bash: poor mans code generation
-- [x] Bash: embedding files into Go
-- [x] Go: listing database migrations
-- [x] Drone CI: testing database migrations
-- [x] Go: Database first struct generation,
+- [x] 1. Go: Introduction to Protobuf: Messages
+- [x] 2. Go: Introduction to protobuf: Services
+- [x] 3. Go: Introduction to protobuf: gRPC
+- [x] 4. Make: dynamic makefile targets
+- [x] 5. Bash: poor mans code generation
+- [x] 6. Bash: embedding files into Go
+- [x] 7. Go: listing database migrations
+- [x] 8. Drone CI: testing database migrations
+- [x] 9. Go: Database first struct generation,
+- [x] 10. Go: Generating documentation from database schema,
+- [x] 11. Go: Dependency injection with Wire
+- [x] 12. Docker images and security,
 
-Currently this adds up to 8/24 articles.
+Currently this adds up to 12/24 articles.
 
 WIP:
 
@@ -24,9 +28,7 @@ WIP:
 
 These are some tentative article titles for future articles:
 
-- [ ] Go: Generating documentation from database schema,
 - [ ] Tentative: Drone CI: secrets and docker image building,
-- [ ] Docker service security,
 - [ ] Docker: compose service gateway (self hosted) (jwilder/nginx-proxy or traefik?)
 - [ ] Running a docker swarm microservice,
 - [ ] Tentative: Difference between docker compose and stack deploy

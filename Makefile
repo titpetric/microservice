@@ -1,4 +1,4 @@
-.PHONY: all build build-cli templates rpc migrate tidy
+.PHONY: all build build-cli templates rpc migrate tidy docker push
 
 # run the CI job for everything
 
@@ -83,3 +83,25 @@ tidy:
 	go mod tidy > /dev/null 2>&1
 	go mod download > /dev/null 2>&1
 	go fmt ./... > /dev/null 2>&1
+
+# docker image build
+
+IMAGE_PREFIX := titpetric/service-
+
+docker: $(shell ls -d cmd/* | sed -e 's/cmd\//docker./')
+	@echo OK.
+
+docker.%: export SERVICE = $(shell basename $*)
+docker.%:
+	@figlet $(SERVICE)
+	docker build --rm --no-cache -t $(IMAGE_PREFIX)$(SERVICE) --build-arg service_name=$(SERVICE) -f docker/serve/Dockerfile .
+
+# docker image push
+
+push: $(shell ls -d cmd/* | sed -e 's/cmd\//push./')
+	@echo OK.
+
+push.%: export SERVICE = $(shell basename $*)
+push.%:
+	@figlet $(SERVICE)
+	docker push $(IMAGE_PREFIX)$(SERVICE)
