@@ -14,7 +14,7 @@ always a possibility of data loss, we will only plan migrations that go one way.
 
 Let's implement the following filesystem schema:
 
-~~~
+~~~plaintext
 /db - the main database migration package (generated .go files too),
 /db/schema/ - a collection of service migrations
 /db/schema/stats/ - migrations for `stats` schema, *.up.sql files
@@ -77,10 +77,12 @@ to have a way to loop over the list of migration files, in order to generate ind
 
 We still might not want the complexity of a Go application to embed these files, so let's
 resort to using bash to generate the files. The requirements are simple - for each migration
-for a schema generate a filesystem, and generate an index of `map[string]FS` for each service.
+for a schema generate a filesystem, and generate an index of `map[string]FS`, with a key/value
+for each service.
 
 Since the files contain special characters like newslines and back-ticks and aren't nicely
-embeddable in Go as is, we will resort to base64 encoding for the file contents.
+embeddable in Go as is, we will resort to base64 encoding for the file contents. For that
+we can use the shell `base64` command, which supports encoding and decoding.
 
 ~~~bash
 #!/bin/bash
@@ -133,3 +135,12 @@ render_schema > db/schema.go
 All that's left to do here is just to run `go fmt` on the resulting go files. As that is
 already handled in our Drone CI steps, we have now succesfully prepared the required SQL
 migrations into the `db` package so we can use it from here.
+
+As we have now embedded all the database migrations into go code, we can move on towards
+running these migrations on a real database as part of our CI testing suite.
+
+A> It's worth noting that just days before publishing this chapter, a proposal for embedding landed on golang/go,
+A> by [@bradfitz](https://twitter.com/bradfitz). It seems if all goes well with the planning
+A> here, and the proposal isn't rejected outright for usability concerns, that some time
+A> in the future the Go toolchain might handle embedding files in a portable and secure way. Take a read here:
+A> [proposal: cmd/go: support embedding static assets (files) in binaries #35950](https://github.com/golang/go/issues/35950)
