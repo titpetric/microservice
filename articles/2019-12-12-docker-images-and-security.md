@@ -65,8 +65,22 @@ ENTRYPOINT ["/app/service"]
 We are actually building a fully featured distro image on alpine here. We add the few required packages that
 actually enable our service to function on some common baseline:
 
-- `ca-certificates` adds the SSL certificates required for HTTPS, so you can consume public APIs,
+- `ca-certificates` adds the SSL certificates required for issuing HTTPS requests,
 - `tzdata` configures the timezone (usually optional if your apps will be built on UTC)
+
+The tzdata package is required not only for setting a default timezone for the Docker image,
+but to format times based on timezone data in Go:
+
+~~~go
+	location, err := time.LoadLocation("Europe/Ljubljana")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	t := time.Now().In(location)
+
+	fmt.Println("Time in Ljubljana:", t.Format("02.01.2006 15:04"))
+~~~
 
 Security wise, we are doing two things:
 
@@ -116,7 +130,7 @@ PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
 ~~~
 
 Since all the executable files are contained in either the `bin` or `sbin` folders, we can
-lis them particularly just by looking for `bin/` with grep:
+list them particularly just by looking for `bin/` with grep:
 
 ~~~plaintext
 # cat files.txt | grep bin/
@@ -192,3 +206,7 @@ rebuilds the complete image without referencing the base image, and deleting eve
 possibly even stripping debug symbols from your app, and ending up with a tiny image which goal is both
 optimized for size and security. With it, your final build image would be similar to what you would
 get if you started with `FROM scratch`.
+
+Another approach would be to use a multi stage Dockerfile, which first installs everything we need
+in a builder image, and then copies the required files into an image built from `scratch`. What we
+would probablly need is just the `/etc` folder, or a subset of it. The exercise is left to the reader.
