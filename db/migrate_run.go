@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Run takes migrations for a project and executes them against a database
 func Run(project string, db *sqlx.DB) error {
 	fs, ok := migrations[project]
 	if !ok {

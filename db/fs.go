@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 )
 
+// FS represents a mapping between filename => contents
 type FS map[string]string
 
 // Migrations returns list of SQL files to execute

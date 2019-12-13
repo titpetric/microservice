@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Print outputs database migrations for a project to log output
 func Print(project string) error {
 	fs, ok := migrations[project]
 	if !ok {
@@ -23,13 +24,13 @@ func Print(project string) error {
 
 	migrate := func(filename string) error {
 		log.Println("Printing migrations from", filename)
-		if stmts, err := statements(fs.ReadFile(filename)); err != nil {
+		stmts, err := statements(fs.ReadFile(filename))
+		if err != nil {
 			return errors.Wrap(err, fmt.Sprintf("Error reading migration: %s", filename))
-		} else {
-			for idx, stmt := range stmts {
-				if err := printQuery(idx, stmt); err != nil {
-					return err
-				}
+		}
+		for idx, stmt := range stmts {
+			if err := printQuery(idx, stmt); err != nil {
+				return err
 			}
 		}
 		return nil
