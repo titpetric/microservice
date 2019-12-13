@@ -29,6 +29,7 @@ steps:
   commands:
     - make tidy
     - wire ./...
+    - make lint
     - make build
 
 services:

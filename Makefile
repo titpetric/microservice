@@ -1,4 +1,4 @@
-.PHONY: all build build-cli templates rpc migrate tidy docker push
+.PHONY: all build build-cli templates rpc migrate tidy docker push lint
 
 # run the CI job for everything
 
@@ -105,3 +105,8 @@ push.%: export SERVICE = $(shell basename $*)
 push.%:
 	@figlet $(SERVICE)
 	docker push $(IMAGE_PREFIX)$(SERVICE)
+
+# lint code
+
+lint:
+	golint -set_exit_status ./...
