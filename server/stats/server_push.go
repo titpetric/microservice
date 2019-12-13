@@ -22,7 +22,9 @@ func (svc *Server) Push(ctx context.Context, r *stats.PushRequest) (*stats.PushR
 	row.Property = r.Property
 	row.PropertySection = r.Section
 	row.PropertyID = r.Id
-	row.RemoteIP = "127.0.0.1"
+	if remoteIP, ok := ctx.Value("ip.address").(string); ok {
+		row.RemoteIP = remoteIP
+	}
 	row.SetStamp(time.Now())
 
 	fields := strings.Join(IncomingFields, ",")

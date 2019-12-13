@@ -6,6 +6,7 @@ package main
 import (
 	"context"
 	"log"
+	"strings"
 
 	"net/http"
 
@@ -14,6 +15,29 @@ import (
 	"github.com/titpetric/microservice/rpc/stats"
 	server "github.com/titpetric/microservice/server/stats"
 )
+
+func wrapWithIP(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// get IP address
+		ip := func() string {
+			headers := []string{
+				http.CanonicalHeaderKey("X-Forwarded-For"),
+				http.CanonicalHeaderKey("X-Real-IP"),
+			}
+			for _, header := range headers {
+				if addr := r.Header.Get(header); addr != "" {
+					return strings.SplitN(addr, ", ", 2)[0]
+				}
+			}
+			return strings.SplitN(r.RemoteAddr, ":", 2)[0]
+		}()
+
+		ctx := r.Context()
+		ctx = context.WithValue(ctx, "ip.address", ip)
+
+		h.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
 
 func main() {
 	ctx := context.TODO()
@@ -25,5 +49,5 @@ func main() {
 
 	twirpHandler := stats.NewStatsServiceServer(srv, nil)
 
-	http.ListenAndServe(":3000", twirpHandler)
+	http.ListenAndServe(":3000", wrapWithIP(twirpHandler))
 }
