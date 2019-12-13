@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/titpetric/microservice/internal"
 	"github.com/titpetric/microservice/rpc/stats"
 )
 
@@ -22,9 +23,7 @@ func (svc *Server) Push(ctx context.Context, r *stats.PushRequest) (*stats.PushR
 	row.Property = r.Property
 	row.PropertySection = r.Section
 	row.PropertyID = r.Id
-	if remoteIP, ok := ctx.Value("ip.address").(string); ok {
-		row.RemoteIP = remoteIP
-	}
+	row.RemoteIP = internal.GetIPFromContext(ctx)
 	row.SetStamp(time.Now())
 
 	fields := strings.Join(IncomingFields, ",")
