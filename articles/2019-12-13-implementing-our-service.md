@@ -304,6 +304,6 @@ Let's modify our Push implementation to read from the context:
 	}
 ~~~
 
-So, at worst - the Remote IP field will be empty. Hopefully I didn't do too bad of a job
+So, at worst - the RemoteIP field will be empty. Hopefully I didn't do too bad of a job
 above and we will see a real IP get logged into the database when we issue our first
 request to the service.
