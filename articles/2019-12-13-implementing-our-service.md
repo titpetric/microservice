@@ -267,7 +267,7 @@ and then come back when you have it working!
 
 Ok, enough of that. Let's see what I did on the first try:
 
-~~~
+~~~go
 func wrapWithIP(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// get IP address
@@ -305,5 +305,5 @@ Let's modify our Push implementation to read from the context:
 ~~~
 
 So, at worst - the Remote IP field will be empty. Hopefully I didn't do too bad of a job
-above and I'm gonna see a real IP get logged into the database when I'll issue my first
+above and we will see a real IP get logged into the database when we issue our first
 request to the service.
