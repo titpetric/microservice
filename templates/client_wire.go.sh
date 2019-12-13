@@ -15,6 +15,7 @@ function render_wire {
 	done
 	echo ")"
 	echo
+	echo "// Inject produces a wire.ProviderSet with our RPC clients"
 	echo "var Inject = wire.NewSet("
 	for schema in $schemas; do
 		echo -e "\t${schema}.New,"

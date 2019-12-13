@@ -8,6 +8,7 @@ import (
 	"${MODULE}/rpc/${SERVICE}"
 )
 
+// Server implements ${SERVICE}.${SERVICE_CAMEL}
 type Server struct {
 	db *sqlx.DB
 }
