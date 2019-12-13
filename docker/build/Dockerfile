@@ -30,3 +30,6 @@ RUN go get -u github.com/josharian/impl
 
 # Install google wire for DI
 RUN go get -u github.com/google/wire/cmd/wire
+
+# Install golint
+RUN go get -u golang.org/x/lint/golint
