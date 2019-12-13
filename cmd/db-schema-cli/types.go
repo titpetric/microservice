@@ -1,5 +1,6 @@
 package main
 
+// Table is an information_schema record
 type Table struct {
 	Name    string `db:"TABLE_NAME"`
 	Comment string `db:"TABLE_COMMENT"`
@@ -7,8 +8,10 @@ type Table struct {
 	Columns []*Column
 }
 
+// TableFields lists database columns from Table{}
 var TableFields = []string{"TABLE_NAME", "TABLE_COMMENT"}
 
+// Column is an information_schema record
 type Column struct {
 	Name    string `db:"COLUMN_NAME"`
 	Type    string `db:"COLUMN_TYPE"`
@@ -19,4 +22,5 @@ type Column struct {
 	DataType string `db:"DATA_TYPE"`
 }
 
+// ColumnFields lists database columns from Column{}
 var ColumnFields = []string{"COLUMN_NAME", "COLUMN_TYPE", "COLUMN_KEY", "COLUMN_COMMENT", "DATA_TYPE"}

@@ -125,11 +125,17 @@ func renderGo(basePath string, schema string, tables []*Table) error {
 	for _, table := range tables {
 		fields := []string{}
 		primary := []string{}
+		setters := []string{}
+
+		tableName := camel(table.Name)
+
+		fmt.Fprintf(buf, "// %s generated for db table `%s`\n", tableName, table.Name)
 		if table.Comment != "" {
-			fmt.Fprintln(buf, "//", table.Comment)
+			fmt.Fprintln(buf, "//\n//", table.Comment)
 		}
-		fmt.Fprintf(buf, "type %s struct {\n", camel(table.Name))
+		fmt.Fprintf(buf, "type %s struct {\n", tableName)
 		for idx, column := range table.Columns {
+			columnName := camel(column.Name)
 			fields = append(fields, column.Name)
 			if column.Key == "PRI" {
 				primary = append(primary, column.Name)
@@ -142,20 +148,37 @@ func renderGo(basePath string, schema string, tables []*Table) error {
 				fmt.Fprintf(buf, "	// %s\n", column.Comment)
 			}
 			columnType, _ := resolveType(column)
-			fmt.Fprintf(buf, "	%s %s `db:\"%s\" json:\"-\"`\n", camel(column.Name), columnType, column.Name)
+			fmt.Fprintf(buf, "	%s %s `db:\"%s\" json:\"-\"`\n", columnName, columnType, column.Name)
+			if columnType == "*time.Time" {
+				setters = append(setters, []string{
+					fmt.Sprintf("// Set%s sets %s which requires a *time.Time", columnName, columnName),
+					fmt.Sprintf("func (s *%s) Set%s(t time.Time) { s.%s = &t }", tableName, columnName, columnName),
+				}...)
+			}
 		}
 		fmt.Fprintln(buf, "}")
 		fmt.Fprintln(buf)
-		fmt.Fprintf(buf, "const %sTable = \"%s\"", camel(table.Name), table.Name)
-		fmt.Fprintln(buf)
-		fmt.Fprintf(buf, "var %sFields = ", camel(table.Name))
+		for _, v := range setters {
+			fmt.Fprintln(buf, v)
+		}
+		if len(setters) > 0 {
+			fmt.Fprintln(buf)
+		}
+		// Table name
+		fmt.Fprintf(buf, "// %sTable is the name of the table in the DB\n", tableName)
+		fmt.Fprintf(buf, "const %sTable = \"%s\"\n", tableName, table.Name)
+		// Table fields
+		fmt.Fprintf(buf, "// %sFields are all the field names in the DB table\n", tableName)
+		fmt.Fprintf(buf, "var %sFields = ", tableName)
 		if len(fields) > 0 {
 			fmt.Fprintf(buf, "[]string{\"%s\"}", strings.Join(fields, "\", \""))
 		} else {
 			fmt.Fprintf(buf, "[]string{}")
 		}
 		fmt.Fprintln(buf)
-		fmt.Fprintf(buf, "var %sPrimaryFields = ", camel(table.Name))
+		// Table primary keys
+		fmt.Fprintf(buf, "// %sPrimaryFields are the primary key fields in the DB table\n", tableName)
+		fmt.Fprintf(buf, "var %sPrimaryFields = ", tableName)
 		if len(primary) > 0 {
 			fmt.Fprintf(buf, "[]string{\"%s\"}", strings.Join(primary, "\", \""))
 		} else {
@@ -164,7 +187,7 @@ func renderGo(basePath string, schema string, tables []*Table) error {
 		fmt.Fprintln(buf)
 	}
 
-	filename := path.Join(basePath, "types_db.go")
+	filename := path.Join(basePath, "types_gen.go")
 	contents := buf.Bytes()
 
 	formatted, err := format.Source(contents)
