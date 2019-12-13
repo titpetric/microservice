@@ -152,6 +152,55 @@ fixes around our `db` package, we are ready to implement our service up to spec.
 
 ## Implementing Push
 
+As mentioned before, we will need an additional dependency - as we don't have an AUTO_INCREMENT
+column, we will use a Sonyflake ID generator to provide us with k-sortable uint64 values. In
+our inject package, define the following provider:
+
+~~~go
+import (
+	"os"
+	"strconv"
+
+	"github.com/sony/sonyflake"
+)
+
+// Sonyflake produces a sonyflake ID generator dependency
+func Sonyflake() *sonyflake.Sonyflake {
+	var serverID uint16
+	if val, err := strconv.ParseInt(os.Getenv("SERVER_ID"), 10, 16); err == nil {
+		serverID = uint16(val)
+	}
+	if serverID > 0 {
+		return sonyflake.NewSonyflake(sonyflake.Settings{
+			MachineID: func() (uint16, error) {
+				return serverID, nil
+			},
+		})
+	}
+	return sonyflake.NewSonyflake(sonyflake.Settings{})
+}
+~~~
+
+Sonyflake has 16 bits reserved for a Machine ID. By default, Sonyflake calculates the
+Machine ID from the bottom 16 bits of a valid LAN address from your container. This
+may prove problematic if you run your services on multiple stand alone hosts, as the
+individual networks may provision the same IP to multiple instances of your service.
+I added in support for a `SERVER_ID` environment variable to be prepared for this.
+
+Update the ProviderSet in the inject package:
+
+~~~go
+// Inject is the main ProviderSet for wire
+var Inject = wire.NewSet(
+	db.Connect,
+	Sonyflake,
+	client.Inject,
+)
+~~~
+
+and include `*sonyflake.Sonyflake` in the `Server{}` definition for the stats service.
+Wire will regenerate the wire_gen.go file, where the sonyflake generator will be created.
+
 Implementing our Push RPC with all the scaffolding which we have now is pretty trivial:
 
 ~~~go
