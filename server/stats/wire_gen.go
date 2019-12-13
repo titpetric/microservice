@@ -8,6 +8,7 @@ package stats
 import (
 	"context"
 	"github.com/titpetric/microservice/db"
+	"github.com/titpetric/microservice/inject"
 )
 
 // Injectors from wire.go:
@@ -17,8 +18,10 @@ func New(ctx context.Context) (*Server, error) {
 	if err != nil {
 		return nil, err
 	}
+	sonyflake := inject.Sonyflake()
 	server := &Server{
-		db: sqlxDB,
+		db:        sqlxDB,
+		sonyflake: sonyflake,
 	}
 	return server, nil
 }
