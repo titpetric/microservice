@@ -2,6 +2,7 @@ package stats
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -12,6 +13,25 @@ import (
 
 // Push a record to the incoming log table
 func (svc *Server) Push(ctx context.Context, r *stats.PushRequest) (*stats.PushResponse, error) {
+	validate := func() error {
+		if r.Property == "" {
+			return errors.New("Missing Property")
+		}
+		if r.Property != "news" {
+			return errors.New("Invalid Property")
+		}
+		if r.Id < 1 {
+			return errors.New("Missing ID")
+		}
+		if r.Section < 1 {
+			return errors.New("Missing Section")
+		}
+		return nil
+	}
+	if err := validate(); err != nil {
+		return nil, err
+	}
+
 	var err error
 	row := Incoming{}
 
@@ -31,5 +51,5 @@ func (svc *Server) Push(ctx context.Context, r *stats.PushRequest) (*stats.PushR
 
 	query := fmt.Sprintf("insert into %s (%s) values (%s)", IncomingTable, fields, named)
 	_, err = svc.db.NamedExecContext(ctx, query, row)
-	return nil, err
+	return new(stats.PushResponse), err
 }
