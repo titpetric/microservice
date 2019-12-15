@@ -37,7 +37,6 @@ templates: $(shell ls -d rpc/* | sed -e 's/rpc\//templates./g')
 	@rm db/schema_*.go db/schema.go
 	@./templates/db_schema.go.sh
 	@./templates/client_wire.go.sh
-	go fmt ./...
 	@echo OK.
 
 templates.%: export SERVICE=$*
@@ -69,15 +68,14 @@ migrate: $(shell ls -d db/schema/*/migrations.sql | xargs -n1 dirname | sed -e '
 	@echo OK.
 
 migrate.%: export SERVICE = $*
-migrate.%: export MYSQL_ROOT_PASSWORD = default
+migrate.%: DSN = "migrations:migrations@tcp(mysql-test:3306)/migrations"
 migrate.%:
-	mkdir -p db/types
-	mysql -h mysql-test -u root -p$(MYSQL_ROOT_PASSWORD) -e "CREATE DATABASE $(SERVICE);"
-	./build/db-migrate-cli-linux-amd64 -service $(SERVICE) -db-dsn "root:$(MYSQL_ROOT_PASSWORD)@tcp(mysql-test:3306)/$(SERVICE)" -real=true
-	./build/db-migrate-cli-linux-amd64 -service $(SERVICE) -db-dsn "root:$(MYSQL_ROOT_PASSWORD)@tcp(mysql-test:3306)/$(SERVICE)" -real=true
+	./build/db-migrate-cli-linux-amd64 -service $(SERVICE) -db-dsn $(DSN) -real=true
+	./build/db-migrate-cli-linux-amd64 -service $(SERVICE) -db-dsn $(DSN) -real=true
 	@find -name types_gen.go -delete
-	./build/db-schema-cli-linux-amd64 -schema $(SERVICE) -db-dsn "root:$(MYSQL_ROOT_PASSWORD)@tcp(mysql-test:3306)/$(SERVICE)" -format go -output server/$(SERVICE)
-	./build/db-schema-cli-linux-amd64 -schema $(SERVICE) -db-dsn "root:$(MYSQL_ROOT_PASSWORD)@tcp(mysql-test:3306)/$(SERVICE)" -format markdown -output docs/schema/$(SERVICE)
+	./build/db-schema-cli-linux-amd64 -service $(SERVICE) -schema migrations -db-dsn $(DSN) -format go -output server/$(SERVICE)
+	./build/db-schema-cli-linux-amd64 -service $(SERVICE) -schema migrations -db-dsn $(DSN) -format markdown -output docs/schema/$(SERVICE)
+	./build/db-schema-cli-linux-amd64 -schema migrations -db-dsn $(DSN) -drop=true
 
 tidy:
 	go mod tidy > /dev/null 2>&1

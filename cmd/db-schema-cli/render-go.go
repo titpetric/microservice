@@ -69,7 +69,7 @@ func isSpecial(column *Column) (specialType, bool) {
 	return val, ok
 }
 
-func renderGo(basePath string, schema string, tables []*Table) error {
+func renderGo(basePath string, service string, tables []*Table) error {
 	// create output folder
 	if err := os.MkdirAll(basePath, 0755); err != nil {
 		return err
@@ -109,7 +109,7 @@ func renderGo(basePath string, schema string, tables []*Table) error {
 
 	buf := bytes.NewBuffer([]byte{})
 
-	fmt.Fprintf(buf, "package %s\n", schema)
+	fmt.Fprintf(buf, "package %s\n", service)
 	fmt.Fprintln(buf)
 
 	// Print collected imports

@@ -70,13 +70,13 @@ func renderMarkdownTable(table *Table) []byte {
 	return buf.Bytes()
 }
 
-func renderMarkdown(basePath string, schema string, tables []*Table) error {
+func renderMarkdown(basePath string, service string, tables []*Table) error {
 	// create output folder
 	if err := os.MkdirAll(basePath, 0755); err != nil {
 		return err
 	}
 
-	// generate individual markdown files with schema
+	// generate individual markdown files with service
 	for _, table := range tables {
 		filename := path.Join(basePath, table.Name+".md")
 
