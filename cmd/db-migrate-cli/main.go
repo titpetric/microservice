@@ -1,10 +1,10 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"log"
 
+	"github.com/SentimensRG/sigctx"
 	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/titpetric/microservice/db"
@@ -27,7 +27,7 @@ func main() {
 		log.Fatal()
 	}
 
-	ctx := context.Background()
+	ctx := sigctx.New()
 
 	switch config.real {
 	case true:

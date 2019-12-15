@@ -4,20 +4,41 @@ package main
 // generator and template: templates/cmd_main.go.tpl
 
 import (
-	"context"
+	"flag"
 	"log"
 
 	"net/http"
 
+	"github.com/SentimensRG/sigctx"
 	_ "github.com/go-sql-driver/mysql"
 
+	"github.com/titpetric/microservice/db"
 	"github.com/titpetric/microservice/internal"
 	"github.com/titpetric/microservice/rpc/stats"
 	server "github.com/titpetric/microservice/server/stats"
 )
 
 func main() {
-	ctx := context.TODO()
+	var config struct {
+		migrate   bool
+		migrateDB db.ConnectionOptions
+	}
+	flag.StringVar(&config.migrateDB.Credentials.Driver, "migrate-db-driver", "mysql", "Migrations: Database driver")
+	flag.StringVar(&config.migrateDB.Credentials.DSN, "migrate-db-dsn", "", "Migrations: DSN for database connection")
+	flag.BoolVar(&config.migrate, "migrate", false, "Run migrations?")
+	flag.Parse()
+
+	ctx := sigctx.New()
+
+	if config.migrate {
+		handle, err := db.ConnectWithRetry(ctx, config.migrateDB)
+		if err != nil {
+			log.Fatalf("Error connecting to database: %+v", err)
+		}
+		if err := db.Run("stats", handle); err != nil {
+			log.Fatalf("An error occured: %+v", err)
+		}
+	}
 
 	srv, err := server.New(ctx)
 	if err != nil {
@@ -26,5 +47,6 @@ func main() {
 
 	twirpHandler := stats.NewStatsServiceServer(srv, nil)
 
+	log.Println("Starting service on port :3000")
 	http.ListenAndServe(":3000", internal.WrapWithIP(twirpHandler))
 }
