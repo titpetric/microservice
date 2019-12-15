@@ -12,7 +12,7 @@ import (
 func Connect(ctx context.Context) (*sqlx.DB, error) {
 	options := ConnectionOptions{}
 	options.Credentials.DSN = os.Getenv("DB_DSN")
-	options.Credentials.DriverName = os.Getenv("DB_DRIVER")
+	options.Credentials.Driver = os.Getenv("DB_DRIVER")
 	return ConnectWithOptions(ctx, options)
 }
 
@@ -22,16 +22,16 @@ func ConnectWithOptions(ctx context.Context, options ConnectionOptions) (*sqlx.D
 	if credentials.DSN == "" {
 		return nil, errors.New("DSN not provided")
 	}
-	if credentials.DriverName == "" {
-		credentials.DriverName = "mysql"
+	if credentials.Driver == "" {
+		credentials.Driver = "mysql"
 	}
 	credentials.DSN = cleanDSN(credentials.DSN)
 	if options.Connector != nil {
 		handle, err := options.Connector(ctx, credentials)
 		if err == nil {
-			return sqlx.NewDb(handle, credentials.DriverName), nil
+			return sqlx.NewDb(handle, credentials.Driver), nil
 		}
 		return nil, errors.WithStack(err)
 	}
-	return sqlx.ConnectContext(ctx, credentials.DriverName, credentials.DSN)
+	return sqlx.ConnectContext(ctx, credentials.Driver, credentials.DSN)
 }

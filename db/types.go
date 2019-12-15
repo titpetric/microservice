@@ -8,10 +8,10 @@ import (
 )
 
 type (
-	// Credentials contains DSN and DriverName
+	// Credentials contains DSN and Driver
 	Credentials struct {
-		DSN        string
-		DriverName string
+		DSN    string
+		Driver string
 	}
 
 	// ConnectionOptions include common connection options

@@ -13,6 +13,12 @@ import (
 func ConnectWithRetry(ctx context.Context, options ConnectionOptions) (db *sqlx.DB, err error) {
 	dsn := maskDSN(options.Credentials.DSN)
 
+	// by default, retry for 5 minutes, 5 seconds between retries
+	if options.Retries == 0 && options.ConnectTimeout.Seconds() == 0 {
+		options.ConnectTimeout = 5 * time.Minute
+		options.RetryDelay = 5 * time.Second
+	}
+
 	connErrCh := make(chan error, 1)
 	defer close(connErrCh)
 

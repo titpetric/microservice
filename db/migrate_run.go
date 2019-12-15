@@ -81,19 +81,27 @@ func Run(project string, db *sqlx.DB) error {
 				}
 				return strings.Join(sql, ", ")
 			}
-			if _, err := db.NamedExec("replace into migrations set "+set(status.Fields()), status); err != nil {
+			if _, err := db.NamedExec("replace into migrations set "+set(migrationFields), status); err != nil {
 				log.Println("Updating migration status failed:", err)
 			}
 		}
 		return err
 	}
 
-	// print main migration
+	// run main migration
 	if err := migrate("migrations.sql"); err != nil {
 		return err
 	}
 
-	// print service migrations
+	if _, err := db.Exec("LOCK TABLES migrations WRITE;"); err != nil {
+		return err
+	}
+
+	defer func() {
+		_ = db.MustExec("UNLOCK TABLES migrations;")
+	}()
+
+	// run service migrations
 	for _, filename := range fs.Migrations() {
 		if err := migrate(filename); err != nil {
 			return err

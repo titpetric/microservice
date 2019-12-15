@@ -14,9 +14,7 @@ type (
 	}
 )
 
-func (migration) Fields() []string {
-	return []string{"project", "filename", "statement_index", "status"}
-}
+var migrationFields = []string{"project", "filename", "statement_index", "status"}
 
 func statements(contents []byte, err error) ([]string, error) {
 	result := []string{}
