@@ -16,18 +16,20 @@ func main() {
 			DSN    string
 			Driver string
 		}
-		Schema string
-		Format string
-		Output string
+		schema string
+		format string
+		output string
+		drop   bool
 	}
 	flag.StringVar(&config.db.Driver, "db-driver", "mysql", "Database driver")
 	flag.StringVar(&config.db.DSN, "db-dsn", "", "DSN for database connection")
-	flag.StringVar(&config.Schema, "schema", "", "Schema name to print tables for")
-	flag.StringVar(&config.Format, "format", "go", "Output formatting")
-	flag.StringVar(&config.Output, "output", "", "Output folder (mandatory)")
+	flag.StringVar(&config.schema, "schema", "", "Schema name to print tables for")
+	flag.StringVar(&config.format, "format", "go", "Output formatting")
+	flag.StringVar(&config.output, "output", "", "Output folder (mandatory)")
+	flag.BoolVar(&config.drop, "drop", false, "Drop tables in schema")
 	flag.Parse()
 
-	if config.Output == "" {
+	if config.output == "" && !config.drop {
 		log.Fatal("Missing -output parameter, please specify output folder")
 	}
 
@@ -39,16 +41,27 @@ func main() {
 	// List tables in schema
 	tables := []*Table{}
 	fields := strings.Join(TableFields, ", ")
-	err = handle.Select(&tables, "select "+fields+" from information_schema.tables where table_schema=? order by table_name asc", config.Schema)
+	err = handle.Select(&tables, "select "+fields+" from information_schema.tables where table_schema=? order by table_name asc", config.schema)
 	if err != nil {
 		log.Println("Error listing database tables")
 		log.Fatal(err)
 	}
 
+	if config.drop {
+		for _, table := range tables {
+			query := "DROP TABLE " + table.Name
+			log.Println(query)
+			if _, err := handle.Exec(query); err != nil {
+				log.Fatal(err)
+			}
+		}
+		return
+	}
+
 	// List columns in tables
 	for _, table := range tables {
 		fields := strings.Join(ColumnFields, ", ")
-		err := handle.Select(&table.Columns, "select "+fields+" from information_schema.columns where table_schema=? and table_name=? order by ordinal_position asc", config.Schema, table.Name)
+		err := handle.Select(&table.Columns, "select "+fields+" from information_schema.columns where table_schema=? and table_name=? order by ordinal_position asc", config.schema, table.Name)
 		if err != nil {
 			log.Println("Error listing database columns for table:", table.Name)
 			log.Fatal(err)
@@ -56,15 +69,15 @@ func main() {
 	}
 
 	// Render go structs
-	if config.Format == "go" {
-		if err := renderGo(config.Output, config.Schema, tables); err != nil {
+	if config.format == "go" {
+		if err := renderGo(config.output, config.schema, tables); err != nil {
 			log.Fatal(err)
 		}
 	}
 
 	// Render markdown tables
-	if config.Format == "markdown" {
-		if err := renderMarkdown(config.Output, config.Schema, tables); err != nil {
+	if config.format == "markdown" {
+		if err := renderMarkdown(config.output, config.schema, tables); err != nil {
 			log.Fatal(err)
 		}
 	}
