@@ -14,7 +14,7 @@ import (
 // Injectors from wire.go:
 
 func New(ctx context.Context) (*Server, error) {
-	sqlxDB, err := db.Connect()
+	sqlxDB, err := db.Connect(ctx)
 	if err != nil {
 		return nil, err
 	}
