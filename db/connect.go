@@ -13,7 +13,7 @@ func Connect(ctx context.Context) (*sqlx.DB, error) {
 	options := ConnectionOptions{}
 	options.Credentials.DSN = os.Getenv("DB_DSN")
 	options.Credentials.Driver = os.Getenv("DB_DRIVER")
-	return ConnectWithOptions(ctx, options)
+	return ConnectWithRetry(ctx, options)
 }
 
 // ConnectWithOptions connect to host based on ConnectionOptions{}
