@@ -93,14 +93,6 @@ func Run(project string, db *sqlx.DB) error {
 		return err
 	}
 
-	if _, err := db.Exec("LOCK TABLES migrations WRITE;"); err != nil {
-		return err
-	}
-
-	defer func() {
-		_ = db.MustExec("UNLOCK TABLES migrations;")
-	}()
-
 	// run service migrations
 	for _, filename := range fs.Migrations() {
 		if err := migrate(filename); err != nil {

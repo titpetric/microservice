@@ -28,7 +28,7 @@ func ConnectWithRetry(ctx context.Context, options ConnectionOptions) (db *sqlx.
 		try := 0
 		for {
 			try++
-			if options.Retries <= try {
+			if options.Retries > 0 && options.Retries <= try {
 				err = errors.Errorf("could not connect, dsn=%s, tries=%d", dsn, try)
 				break
 			}
