@@ -42,7 +42,6 @@ templates: $(shell ls -d rpc/* | sed -e 's/rpc\//templates./g')
 
 templates.%: export SERVICE=$*
 templates.%: export SERVICE_CAMEL=$(shell echo $(SERVICE) | sed -r 's/(^|_)([a-z])/\U\2/g')
-templates.%: export MODULE=$(shell grep ^module go.mod | sed -e 's/module //g')
 templates.%:
 	@mkdir -p cmd/$(SERVICE) client/$(SERVICE) server/$(SERVICE)
 	@envsubst < templates/cmd_main.go.tpl > cmd/$(SERVICE)/main.go
@@ -76,6 +75,7 @@ migrate.%:
 	mysql -h mysql-test -u root -p$(MYSQL_ROOT_PASSWORD) -e "CREATE DATABASE $(SERVICE);"
 	./build/db-migrate-cli-linux-amd64 -service $(SERVICE) -db-dsn "root:$(MYSQL_ROOT_PASSWORD)@tcp(mysql-test:3306)/$(SERVICE)" -real=true
 	./build/db-migrate-cli-linux-amd64 -service $(SERVICE) -db-dsn "root:$(MYSQL_ROOT_PASSWORD)@tcp(mysql-test:3306)/$(SERVICE)" -real=true
+	@find -name types_gen.go -delete
 	./build/db-schema-cli-linux-amd64 -schema $(SERVICE) -db-dsn "root:$(MYSQL_ROOT_PASSWORD)@tcp(mysql-test:3306)/$(SERVICE)" -format go -output server/$(SERVICE)
 	./build/db-schema-cli-linux-amd64 -schema $(SERVICE) -db-dsn "root:$(MYSQL_ROOT_PASSWORD)@tcp(mysql-test:3306)/$(SERVICE)" -format markdown -output docs/schema/$(SERVICE)
 
