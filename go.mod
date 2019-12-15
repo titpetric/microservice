@@ -3,6 +3,7 @@ module github.com/titpetric/microservice
 go 1.13
 
 require (
+	github.com/SentimensRG/sigctx v0.0.0-20171003180858-c19b774db63b
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/golang/protobuf v1.3.2
 	github.com/google/wire v0.3.0
