@@ -310,7 +310,7 @@ There's no changes to the API apart from that the connection retry is now built 
 To make this easier to test, we provision a specific `migrations` user and database with
 the definition for the database service in drone.yml:
 
-~~~
+~~~yaml
 services:
 - name: mysql-test
   pull: always
