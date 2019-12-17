@@ -45,8 +45,8 @@ func main() {
 		log.Fatalf("Error in service.New(): %+v", err)
 	}
 
-	twirpHandler := ${SERVICE}.New${SERVICE_CAMEL}ServiceServer(srv, nil)
+	twirpHandler := ${SERVICE}.New${SERVICE_CAMEL}ServiceServer(srv, internal.NewServerHooks())
 
 	log.Println("Starting service on port :3000")
-	http.ListenAndServe(":3000", internal.WrapWithIP(twirpHandler))
+	http.ListenAndServe(":3000", internal.WrapAll(twirpHandler))
 }

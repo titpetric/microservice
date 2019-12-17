@@ -48,5 +48,5 @@ func main() {
 	twirpHandler := stats.NewStatsServiceServer(srv, nil)
 
 	log.Println("Starting service on port :3000")
-	http.ListenAndServe(":3000", internal.WrapWithIP(twirpHandler))
+	http.ListenAndServe(":3000", internal.WrapAll(twirpHandler))
 }

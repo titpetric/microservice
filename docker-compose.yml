@@ -6,10 +6,21 @@ services:
     restart: always
     environment:
       DB_DSN: "stats:stats@tcp(db:3306)/stats"
+      ELASTIC_APM_SERVICE_NAME: "stats"
+      ELASTIC_APM_SERVER_URL: "http://apm:8200"
     command: [
       "-migrate-db-dsn=stats:stats@tcp(db:3306)/stats",
       "-migrate"
     ]
+
+  elk:
+    image: sebp/elk:740
+    restart: always
+    ports:
+      - "5601:5601"
+
+  apm:
+    build: docker/apm
 
   db:
     image: percona/percona-server:8.0.17

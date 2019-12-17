@@ -4,7 +4,16 @@ import (
 	"strings"
 
 	"net/http"
+
+	"go.elastic.co/apm/module/apmhttp"
 )
+
+// WrapAll wraps a http.Handler with all needed handlers for our service
+func WrapAll(h http.Handler) http.Handler {
+	h = WrapWithIP(h)
+	h = apmhttp.Wrap(h)
+	return h
+}
 
 // WrapWithIP wraps a http.Handler to inject the client IP into the context
 func WrapWithIP(h http.Handler) http.Handler {

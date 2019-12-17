@@ -14,7 +14,8 @@ require (
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
 	github.com/sony/sonyflake v1.0.0
 	github.com/twitchtv/twirp v5.9.0+incompatible
-	golang.org/x/net v0.0.0-20190620200207-3b0461eec859 // indirect
+	go.elastic.co/apm v1.6.0
+	go.elastic.co/apm/module/apmhttp v1.6.0
 	google.golang.org/appengine v1.6.5 // indirect
 	google.golang.org/grpc v1.25.1
 )
