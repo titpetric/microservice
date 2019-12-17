@@ -1,4 +1,4 @@
-package inject
+package internal
 
 import (
 	"context"

@@ -80,7 +80,7 @@ Let's prepare a function that will construct an instance of *twirp.ServerHooks i
 internal package with a defined error logger, under `internal/twirp.go`:
 
 ~~~go
-package inject
+package internal
 
 import (
 	"context"

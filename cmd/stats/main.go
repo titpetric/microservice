@@ -10,7 +10,6 @@ import (
 	"net/http"
 
 	"github.com/SentimensRG/sigctx"
-	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/titpetric/microservice/db"
 	"github.com/titpetric/microservice/internal"
@@ -45,7 +44,7 @@ func main() {
 		log.Fatalf("Error in service.New(): %+v", err)
 	}
 
-	twirpHandler := stats.NewStatsServiceServer(srv, nil)
+	twirpHandler := stats.NewStatsServiceServer(srv, internal.NewServerHooks())
 
 	log.Println("Starting service on port :3000")
 	http.ListenAndServe(":3000", internal.WrapAll(twirpHandler))
