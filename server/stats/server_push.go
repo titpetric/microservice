@@ -13,6 +13,8 @@ import (
 
 // Push a record to the incoming log table
 func (svc *Server) Push(ctx context.Context, r *stats.PushRequest) (*stats.PushResponse, error) {
+	ctx = internal.ContextWithoutCancel(ctx)
+
 	validate := func() error {
 		if r.Property == "" {
 			return errors.New("Missing Property")

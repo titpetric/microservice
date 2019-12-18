@@ -4,19 +4,17 @@ import (
 	"context"
 )
 
-type (
-	ipAddressCtxKey struct{}
-)
-
-// SetIPToContext sets IP value to ctx
-func SetIPToContext(ctx context.Context, ip string) context.Context {
-	return context.WithValue(ctx, ipAddressCtxKey{}, ip)
+type ctxWithoutCancel struct {
+	context.Context
 }
 
-// GetIPFromContext gets IP value from ctx
-func GetIPFromContext(ctx context.Context) string {
-	if ip, ok := ctx.Value(ipAddressCtxKey{}).(string); ok {
-		return ip
-	}
-	return ""
+// Done returns nil (not cancellable)
+func (c ctxWithoutCancel) Done() <-chan struct{} { return nil }
+
+// Err returns nil (not cancellable)
+func (c ctxWithoutCancel) Err() error { return nil }
+
+// ContextWithoutCancel returns a non-cancelable ctx
+func ContextWithoutCancel(ctx context.Context) context.Context {
+	return ctxWithoutCancel{ctx}
 }

@@ -24,6 +24,9 @@ services:
 
   db:
     image: percona/percona-server:8.0.17
+    command: [
+      "--max_connections=1000"
+    ]
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "true"
       MYSQL_USER: "stats"

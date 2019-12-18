@@ -10,6 +10,8 @@ import (
 	"github.com/pkg/errors"
 
 	"go.elastic.co/apm/module/apmsql"
+
+	// apm specific wrapper for the go mysql driver
 	_ "go.elastic.co/apm/module/apmsql/mysql"
 )
 
@@ -43,12 +45,23 @@ func ConnectWithOptions(ctx context.Context, options ConnectionOptions) (*sqlx.D
 		credentials.Driver = "mysql"
 	}
 	credentials.DSN = cleanDSN(credentials.DSN)
-	if options.Connector != nil {
-		handle, err := options.Connector(ctx, credentials)
-		if err == nil {
-			return sqlx.NewDb(handle, credentials.Driver), nil
+
+	connect := func() (*sqlx.DB, error) {
+		if options.Connector != nil {
+			handle, err := options.Connector(ctx, credentials)
+			if err == nil {
+				return sqlx.NewDb(handle, credentials.Driver), nil
+			}
+			return nil, errors.WithStack(err)
 		}
-		return nil, errors.WithStack(err)
+		return sqlx.ConnectContext(ctx, credentials.Driver, credentials.DSN)
 	}
-	return sqlx.ConnectContext(ctx, credentials.Driver, credentials.DSN)
+
+	db, err := connect()
+	if err != nil {
+		return nil, err
+	}
+	db.SetMaxOpenConns(800)
+	db.SetMaxIdleConns(800)
+	return db, nil
 }
