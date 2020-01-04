@@ -13,4 +13,8 @@ type Server struct {
 	db *sqlx.DB
 }
 
+// Shutdown is a cleanup hook after SIGTERM
+func (*Server) Shutdown() {
+}
+
 var _ ${SERVICE}.${SERVICE_CAMEL}Service = &Server{}
