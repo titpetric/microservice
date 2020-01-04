@@ -17,6 +17,7 @@ require (
 	go.elastic.co/apm v1.6.0
 	go.elastic.co/apm/module/apmhttp v1.6.0
 	go.elastic.co/apm/module/apmsql v1.6.0
+	go.uber.org/atomic v1.5.1
 	google.golang.org/appengine v1.6.5 // indirect
 	google.golang.org/grpc v1.25.1
 )
