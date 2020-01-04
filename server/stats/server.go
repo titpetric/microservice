@@ -12,6 +12,12 @@ type Server struct {
 	db *sqlx.DB
 
 	sonyflake *sonyflake.Sonyflake
+	flusher   *Flusher
+}
+
+// Shutdown is a cleanup hook after SIGTERM
+func (s *Server) Shutdown() {
+	<-s.flusher.Done()
 }
 
 var _ stats.StatsService = &Server{}

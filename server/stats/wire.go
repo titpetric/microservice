@@ -12,6 +12,7 @@ import (
 
 func New(ctx context.Context) (*Server, error) {
 	wire.Build(
+		NewFlusher,
 		inject.Inject,
 		wire.Struct(new(Server), "*"),
 	)

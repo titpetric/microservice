@@ -19,9 +19,14 @@ func New(ctx context.Context) (*Server, error) {
 		return nil, err
 	}
 	sonyflake := inject.Sonyflake()
+	flusher, err := NewFlusher(ctx, sqlxDB)
+	if err != nil {
+		return nil, err
+	}
 	server := &Server{
 		db:        sqlxDB,
 		sonyflake: sonyflake,
+		flusher:   flusher,
 	}
 	return server, nil
 }
