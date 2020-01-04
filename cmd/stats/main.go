@@ -47,5 +47,9 @@ func main() {
 	twirpHandler := stats.NewStatsServiceServer(srv, internal.NewServerHooks())
 
 	log.Println("Starting service on port :3000")
-	http.ListenAndServe(":3000", internal.WrapAll(twirpHandler))
+	go http.ListenAndServe(":3000", internal.WrapAll(twirpHandler))
+	<-ctx.Done()
+
+	srv.Shutdown()
+	log.Println("Done.")
 }
