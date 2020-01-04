@@ -48,8 +48,7 @@ templates.%:
 	@envsubst < templates/client_client.go.tpl > client/$(SERVICE)/client.go
 	@echo "~ client/$(SERVICE)/client.go"
 	@./templates/server_server.go.sh
-	@envsubst < templates/server_wire.go.tpl > server/$(SERVICE)/wire.go
-	@echo "~ server/$(SERVICE)/wire.go"
+	@./templates/server_wire.go.sh
 
 # rpc generators
 
