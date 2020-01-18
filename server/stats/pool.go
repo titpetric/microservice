@@ -15,6 +15,14 @@ func NewPool() *Pool {
 	}
 }
 
+func NewPools(size int) []*Pool {
+	result := make([]*Pool, size)
+	for i := 0; i < size; i++ {
+		result[i] = NewPool()
+	}
+	return result
+}
+
 func (p *Pool) Clear() (result []*Incoming) {
 	length := p.Length()
 

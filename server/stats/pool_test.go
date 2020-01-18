@@ -10,8 +10,10 @@ func TestPool(t *testing.T) {
 			t.Fatalf(format, params...)
 		}
 	}
+
 	pool := NewPool()
 	assert(pool.Length() == 0, "Unexpected pool length: %d != 0", pool.Length())
+
 	pool.Push(new(Incoming))
 	pool.Push(new(Incoming))
 	pool.Push(new(Incoming))
@@ -20,4 +22,10 @@ func TestPool(t *testing.T) {
 	items := pool.Clear()
 	assert(len(items) == 3, "Unexpected items length: %d != 3", len(items))
 	assert(pool.Length() == 0, "Unexpected pool length: %d != 0", pool.Length())
+
+	pools := NewPools(16)
+	assert(len(pools) == 16, "Unexpected pool count: %d != 16", len(pools))
+	for k, v := range pools {
+		assert(v != nil, "Unexpected pool value: expected not nil, index %d", k)
+	}
 }
