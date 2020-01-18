@@ -3,13 +3,14 @@ package stats
 import (
 	"context"
 	"errors"
-	"fmt"
-	"strings"
 	"time"
 
 	"github.com/titpetric/microservice/internal"
 	"github.com/titpetric/microservice/rpc/stats"
 )
+
+// Keep returning a single object to avoid allocations
+var pushResponseDefault = new(stats.PushResponse)
 
 // Push a record to the incoming log table
 func (svc *Server) Push(ctx context.Context, r *stats.PushRequest) (*stats.PushResponse, error) {
@@ -35,7 +36,7 @@ func (svc *Server) Push(ctx context.Context, r *stats.PushRequest) (*stats.PushR
 	}
 
 	var err error
-	row := Incoming{}
+	row := new(Incoming)
 
 	row.ID, err = svc.sonyflake.NextID()
 	if err != nil {
@@ -48,10 +49,5 @@ func (svc *Server) Push(ctx context.Context, r *stats.PushRequest) (*stats.PushR
 	row.RemoteIP = internal.GetIPFromContext(ctx)
 	row.SetStamp(time.Now())
 
-	fields := strings.Join(IncomingFields, ",")
-	named := ":" + strings.Join(IncomingFields, ",:")
-
-	query := fmt.Sprintf("insert into %s (%s) values (%s)", IncomingTable, fields, named)
-	_, err = svc.db.NamedExecContext(ctx, query, row)
-	return new(stats.PushResponse), err
+	return pushResponseDefault, svc.flusher.Push(row)
 }
