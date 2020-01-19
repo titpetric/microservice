@@ -86,6 +86,7 @@ tidy:
 IMAGE_PREFIX := titpetric/service-
 
 docker: $(shell ls -d cmd/* | sed -e 's/cmd\//docker./')
+	@echo IMAGE_PREFIX=$(IMAGE_PREFIX) > .env
 	@echo OK.
 
 docker.%: export SERVICE = $(shell basename $*)
