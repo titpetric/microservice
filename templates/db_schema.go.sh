@@ -31,8 +31,20 @@ function render_schema {
 	echo "}"
 }
 
+## create databases/users for each service
+function render_init {
+	for schema in $schemas; do
+		local package=$(basename $schema)
+		echo "CREATE DATABASE IF NOT EXISTS \`$package\`;"
+		echo "CREATE USER '$package'@'%' IDENTIFIED BY '$package';"
+		echo "GRANT ALL ON \`$package\`.* TO '$package'@'%';"
+		echo
+	done
+	echo "FLUSH PRIVILEGES;"
+}
+
 ## list all service migrations (db/schema/stats, ...)
-schemas=$(ls db/schema/*/migrations.sql | xargs -n1 dirname)
+schemas=$(ls db/schema/*/migrations.sql | xargs -n1 dirname | sort)
 for schema in $schemas; do
 	# db/schema/stats -> schema/stats
 	schema_relative=${schema/db\//}
@@ -45,3 +57,6 @@ done
 
 render_schema > db/schema.go
 echo "~ db/schema.go"
+
+render_init > docker/dev/initdb.d/00-init-users.sql
+echo "~ docker/dev/initdb.d/00-init-users.sql"
