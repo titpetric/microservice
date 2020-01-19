@@ -1,0 +1,5 @@
+CREATE DATABASE IF NOT EXISTS `stats`;
+CREATE USER 'stats'@'%' IDENTIFIED BY 'stats';
+GRANT ALL ON `stats`.* TO 'stats'@'%';
+
+FLUSH PRIVILEGES;
