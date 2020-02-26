@@ -60,6 +60,7 @@ rpc.%:
 	@echo '> protoc gen for $(SERVICE)'
 	@protoc --proto_path=$(GOPATH)/src:. -Irpc/$(SERVICE) --go_out=plugins=grpc,paths=source_relative:. rpc/$(SERVICE)/$(SERVICE).proto
 	@protoc --proto_path=$(GOPATH)/src:. -Irpc/$(SERVICE) --twirp_out=paths=source_relative:. rpc/$(SERVICE)/$(SERVICE).proto
+	@protoc --proto_path=$(GOPATH)/src:. -Irpc/$(SERVICE) --twirp_swagger_out=js --twirp_js_out=js --js_out=import_style=commonjs,binary:js $(SERVICE).proto
 
 # database migrations
 
@@ -71,7 +72,9 @@ migrate.%: DSN = "migrations:migrations@tcp(mysql-test:3306)/migrations"
 migrate.%:
 	./build/db-migrate-cli-linux-amd64 -service $(SERVICE) -db-dsn $(DSN) -real=true
 	./build/db-migrate-cli-linux-amd64 -service $(SERVICE) -db-dsn $(DSN) -real=true
-	@find -name types_gen.go -delete
+	@mkdir -p server/$(SERVICE)
+	@find server/$(SERVICE) -name types_gen.go -delete
+	@rm -rf docs/schema/$(SERVICE)
 	./build/db-schema-cli-linux-amd64 -service $(SERVICE) -schema migrations -db-dsn $(DSN) -format go -output server/$(SERVICE)
 	./build/db-schema-cli-linux-amd64 -service $(SERVICE) -schema migrations -db-dsn $(DSN) -format markdown -output docs/schema/$(SERVICE)
 	./build/db-schema-cli-linux-amd64 -schema migrations -db-dsn $(DSN) -drop=true
@@ -107,4 +110,4 @@ push.%:
 # lint code
 
 lint:
-	golint -set_exit_status ./...
+	golangci-lint run --enable-all -D gomnd,gochecknoglobals,godox,gofmt,wsl,lll,gocognit,funlen ./...
