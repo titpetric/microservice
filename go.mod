@@ -8,6 +8,7 @@ require (
 	github.com/golang/protobuf v1.3.2
 	github.com/google/wire v0.3.0
 	github.com/jmoiron/sqlx v1.2.1-0.20191203222853-2ba0fc60eb4a
+	github.com/namsral/flag v1.7.4-pre
 	github.com/onsi/ginkgo v1.10.3 // indirect
 	github.com/onsi/gomega v1.7.1 // indirect
 	github.com/pkg/errors v0.8.1

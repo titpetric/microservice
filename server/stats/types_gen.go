@@ -28,10 +28,10 @@ type Incoming struct {
 }
 
 // SetStamp sets Stamp which requires a *time.Time
-func (s *Incoming) SetStamp(t time.Time) { s.Stamp = &t }
+func (i *Incoming) SetStamp(t time.Time) { i.Stamp = &t }
 
 // IncomingTable is the name of the table in the DB
-const IncomingTable = "incoming"
+const IncomingTable = "`incoming`"
 
 // IncomingFields are all the field names in the DB table
 var IncomingFields = []string{"id", "property", "property_section", "property_id", "remote_ip", "stamp"}
@@ -63,10 +63,10 @@ type IncomingProc struct {
 }
 
 // SetStamp sets Stamp which requires a *time.Time
-func (s *IncomingProc) SetStamp(t time.Time) { s.Stamp = &t }
+func (i *IncomingProc) SetStamp(t time.Time) { i.Stamp = &t }
 
 // IncomingProcTable is the name of the table in the DB
-const IncomingProcTable = "incoming_proc"
+const IncomingProcTable = "`incoming_proc`"
 
 // IncomingProcFields are all the field names in the DB table
 var IncomingProcFields = []string{"id", "property", "property_section", "property_id", "remote_ip", "stamp"}
@@ -90,7 +90,7 @@ type Migrations struct {
 }
 
 // MigrationsTable is the name of the table in the DB
-const MigrationsTable = "migrations"
+const MigrationsTable = "`migrations`"
 
 // MigrationsFields are all the field names in the DB table
 var MigrationsFields = []string{"project", "filename", "statement_index", "status"}

@@ -16,8 +16,8 @@ type Server struct {
 }
 
 // Shutdown is a cleanup hook after SIGTERM
-func (s *Server) Shutdown() {
-	<-s.flusher.Done()
+func (svc *Server) Shutdown() {
+	<-svc.flusher.Done()
 }
 
 var _ stats.StatsService = &Server{}

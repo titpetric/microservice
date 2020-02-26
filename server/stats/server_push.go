@@ -18,16 +18,16 @@ func (svc *Server) Push(ctx context.Context, r *stats.PushRequest) (*stats.PushR
 
 	validate := func() error {
 		if r.Property == "" {
-			return errors.New("Missing Property")
+			return errors.New("missing property")
 		}
 		if r.Property != "news" {
-			return errors.New("Invalid Property")
+			return errors.New("invalid property")
 		}
 		if r.Id < 1 {
-			return errors.New("Missing ID")
+			return errors.New("missing id")
 		}
 		if r.Section < 1 {
-			return errors.New("Missing Section")
+			return errors.New("missing section")
 		}
 		return nil
 	}
