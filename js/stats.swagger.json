@@ -1,0 +1,66 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "stats.proto",
+    "version": "version not set"
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/twirp/stats.StatsService/Push": {
+      "post": {
+        "operationId": "Push",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/statsPushResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/statsPushRequest"
+            }
+          }
+        ],
+        "tags": [
+          "StatsService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "statsPushRequest": {
+      "type": "object",
+      "properties": {
+        "property": {
+          "type": "string"
+        },
+        "section": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "statsPushResponse": {
+      "type": "object"
+    }
+  }
+}
