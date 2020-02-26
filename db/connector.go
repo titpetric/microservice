@@ -58,5 +58,5 @@ func ConnectWithRetry(ctx context.Context, options ConnectionOptions) (db *sqlx.
 		return nil, errors.Errorf("db connection cancelled, dsn=%s", dsn)
 	}
 
-	return
+	return db, err
 }
