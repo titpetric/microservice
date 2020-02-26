@@ -83,12 +83,8 @@ func (job *Flusher) flush() {
 	query := fmt.Sprintf("insert into %s (%s) values (%s)", IncomingTable, fields, named)
 
 	var batchInsertSize int
-	log.Println("[flush] begin")
-	for k, queue := range job.queues {
+	for _, queue := range job.queues {
 		rows := queue.Clear()
-
-		log.Println("[flush] queue", k, "rows", len(rows))
-
 		for len(rows) > 0 {
 			batchInsertSize = 1000
 			if len(rows) < batchInsertSize {
@@ -100,5 +96,4 @@ func (job *Flusher) flush() {
 			rows = rows[batchInsertSize:]
 		}
 	}
-	log.Println("[flush] done")
 }
