@@ -36,11 +36,11 @@ func main() {
 			log.Fatalf("Error connecting to database: %+v", err)
 		}
 		if err := db.Run(config.service, handle); err != nil {
-			log.Fatalf("An error occured: %+v", err)
+			log.Fatalf("An error occurred: %+v", err)
 		}
 	default:
 		if err := db.Print(config.service); err != nil {
-			log.Fatalf("An error occured: %+v", err)
+			log.Fatalf("An error occurred: %+v", err)
 		}
 	}
 }
