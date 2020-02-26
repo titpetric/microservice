@@ -36,12 +36,9 @@ func (p *Queue) Push(item *Incoming) error {
 
 // Clear returns current queue items and clears it
 func (p *Queue) Clear() (result []*Incoming) {
-	length := p.Length()
-
 	p.Lock()
 	defer p.Unlock()
-
-	result, p.values = p.values[:length], p.values[length:]
+	result, p.values = p.values[:len(p.values)], p.values[len(p.values):]
 	return
 }
 
