@@ -23,7 +23,7 @@ RUN go get -u google.golang.org/grpc
 RUN go get -u github.com/golang/protobuf/protoc-gen-go
 
 # Install protoc-gen-twirp
-RUN go get github.com/twitchtv/twirp/protoc-gen-twirp
+RUN go get -u github.com/twitchtv/twirp/protoc-gen-twirp
 
 # Install interface scaffolder
 RUN go get -u github.com/josharian/impl
@@ -31,5 +31,9 @@ RUN go get -u github.com/josharian/impl
 # Install google wire for DI
 RUN go get -u github.com/google/wire/cmd/wire
 
-# Install golint
-RUN go get -u golang.org/x/lint/golint
+# Additional twirp outputs
+RUN go get -u github.com/thechriswalker/protoc-gen-twirp_js
+RUN go get -u github.com/elliots/protoc-gen-twirp_swagger
+
+# GolangCI lint
+RUN cd /usr/local && curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.23.1
