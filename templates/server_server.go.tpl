@@ -1,8 +1,6 @@
 package ${SERVICE}
 
 import (
-	"context"
-
 	"github.com/jmoiron/sqlx"
 
 	"${MODULE}/rpc/${SERVICE}"

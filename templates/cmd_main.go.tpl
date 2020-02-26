@@ -4,12 +4,12 @@ package main
 // generator and template: templates/cmd_main.go.tpl
 
 import (
-	"flag"
 	"log"
 
 	"net/http"
 
 	"github.com/SentimensRG/sigctx"
+	"github.com/namsral/flag"
 
 	"${MODULE}/db"
 	"${MODULE}/internal"
@@ -35,7 +35,7 @@ func main() {
 			log.Fatalf("Error connecting to database: %+v", err)
 		}
 		if err := db.Run("${SERVICE}", handle); err != nil {
-			log.Fatalf("An error occured: %+v", err)
+			log.Fatalf("An error occurred: %+v", err)
 		}
 	}
 
@@ -47,7 +47,12 @@ func main() {
 	twirpHandler := ${SERVICE}.New${SERVICE_CAMEL}ServiceServer(srv, internal.NewServerHooks())
 
 	log.Println("Starting service on port :3000")
-	go http.ListenAndServe(":3000", internal.WrapAll(twirpHandler))
+	go func() {
+		err := http.ListenAndServe(":3000", internal.WrapAll(twirpHandler))
+		if err != http.ErrServerClosed {
+			log.Println("Server error:", err)
+		}
+	}()
 	<-ctx.Done()
 
 	srv.Shutdown()
