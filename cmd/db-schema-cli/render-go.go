@@ -62,11 +62,29 @@ var specialTypes map[string]specialType = map[string]specialType{
 	"timestamp": specialType{"time", "*time.Time"},
 	// `enum` and `set` aren't implemented
 	// `year` isn't implemented
+	"json": specialType{"sqlxTypes github.com/jmoiron/sqlx/types", "sqlxTypes.JSONText"},
 }
 
 func isSpecial(column *Column) (specialType, bool) {
 	val, ok := specialTypes[column.DataType]
 	return val, ok
+}
+
+func resolveTypeGo(column *Column) (string, error) {
+	if val, ok := isSimple(column); ok {
+		return val, nil
+	}
+	if val, ok := isNumeric(column); ok {
+		isUnsigned := strings.Contains(strings.ToLower(column.Type), "unsigned")
+		if isUnsigned {
+			return "u" + val, nil
+		}
+		return val, nil
+	}
+	if val, ok := isSpecial(column); ok {
+		return val.Type, nil
+	}
+	return "", errors.Errorf("Unsupported SQL type: %s", column.DataType)
 }
 
 func renderGo(basePath string, service string, tables []*Table) error {
@@ -77,32 +95,20 @@ func renderGo(basePath string, service string, tables []*Table) error {
 
 	imports := []string{}
 
-	resolveType := func(column *Column) (string, error) {
-		if val, ok := isSimple(column); ok {
-			return val, nil
-		}
-		if val, ok := isNumeric(column); ok {
-			isUnsigned := strings.Contains(strings.ToLower(column.Type), "unsigned")
-			if isUnsigned {
-				return "u" + val, nil
-			}
-			return val, nil
-		}
-		if val, ok := isSpecial(column); ok {
-			if !contains(imports, val.Import) {
-				imports = append(imports, val.Import)
-			}
-			return val.Type, nil
-		}
-		return "", errors.Errorf("Unsupported SQL type: %s", column.DataType)
-	}
-
 	// Loop through tables/columns, return type error if any
 	// This also builds the `imports` slice for codegen lower
 	for _, table := range tables {
 		for _, column := range table.Columns {
-			if _, err := resolveType(column); err != nil {
-				return err
+			if val, ok := isSpecial(column); ok {
+				importString := fmt.Sprintf("\"%s\"", val.Import)
+				// "x y" => import x "y"
+				if strings.Contains(val.Import, " ") {
+					parts := strings.Split(val.Import, " ")
+					importString = fmt.Sprintf("%s \"%s\"", parts[0], parts[1])
+				}
+				if !contains(imports, importString) {
+					imports = append(imports, importString)
+				}
 			}
 		}
 	}
@@ -115,8 +121,21 @@ func renderGo(basePath string, service string, tables []*Table) error {
 	// Print collected imports
 	if len(imports) > 0 {
 		fmt.Fprintln(buf, "import (")
+		nl := false
 		for _, val := range imports {
-			fmt.Fprintf(buf, "\t\"%s\"\n", val)
+			if !strings.Contains(val, " ") {
+				fmt.Fprintf(buf, "\t%s\n", val)
+			} else {
+				nl = true
+			}
+		}
+		if nl {
+			fmt.Fprintln(buf)
+		}
+		for _, val := range imports {
+			if strings.Contains(val, " ") {
+				fmt.Fprintf(buf, "\t%s\n", val)
+			}
 		}
 		fmt.Fprintln(buf, ")")
 		fmt.Fprintln(buf)
@@ -127,7 +146,11 @@ func renderGo(basePath string, service string, tables []*Table) error {
 		primary := []string{}
 		setters := []string{}
 
-		tableName := camel(table.Name)
+		if strings.ToLower(table.Comment) == "ignore" {
+			continue
+		}
+
+		tableName := camel(strings.Replace(table.Name, service+"_", "", 1))
 
 		fmt.Fprintf(buf, "// %s generated for db table `%s`\n", tableName, table.Name)
 		if table.Comment != "" {
@@ -147,12 +170,13 @@ func renderGo(basePath string, service string, tables []*Table) error {
 				}
 				fmt.Fprintf(buf, "	// %s\n", column.Comment)
 			}
-			columnType, _ := resolveType(column)
+			columnType, _ := resolveTypeGo(column)
 			fmt.Fprintf(buf, "	%s %s `db:\"%s\" json:\"-\"`\n", columnName, columnType, column.Name)
 			if columnType == "*time.Time" {
+				receiver := strings.ToLower(string(tableName[0]))
 				setters = append(setters, []string{
 					fmt.Sprintf("// Set%s sets %s which requires a *time.Time", columnName, columnName),
-					fmt.Sprintf("func (s *%s) Set%s(t time.Time) { s.%s = &t }", tableName, columnName, columnName),
+					fmt.Sprintf("func (%s *%s) Set%s(t time.Time) { %s.%s = &t }", receiver, tableName, columnName, receiver, columnName),
 				}...)
 			}
 		}
@@ -166,7 +190,8 @@ func renderGo(basePath string, service string, tables []*Table) error {
 		}
 		// Table name
 		fmt.Fprintf(buf, "// %sTable is the name of the table in the DB\n", tableName)
-		fmt.Fprintf(buf, "const %sTable = \"%s\"\n", tableName, table.Name)
+		// Table is SQL backtick quoted so we can allow reserved words like `group`
+		fmt.Fprintf(buf, "const %sTable = \"`%s`\"\n", tableName, table.Name)
 		// Table fields
 		fmt.Fprintf(buf, "// %sFields are all the field names in the DB table\n", tableName)
 		fmt.Fprintf(buf, "var %sFields = ", tableName)
@@ -193,9 +218,9 @@ func renderGo(basePath string, service string, tables []*Table) error {
 	formatted, err := format.Source(contents)
 	if err != nil {
 		// fall back to unformatted source to inspect
-		// the saved file for the error which occured
+		// the saved file for the error which occurred
 		formatted = contents
-		log.Println("An error occured while formatting the go source: %s", err)
+		log.Println("An error occurred while formatting the go source:", err)
 		log.Println("Saving the unformatted code")
 	}
 

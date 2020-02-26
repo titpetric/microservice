@@ -52,7 +52,7 @@ func main() {
 	// Drop all tables in schema
 	if config.drop {
 		for _, table := range tables {
-			query := "DROP TABLE " + table.Name
+			query := "DROP TABLE `" + table.Name + "`"
 			log.Println(query)
 			if _, err := handle.Exec(query); err != nil {
 				log.Fatal(err)

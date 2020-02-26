@@ -70,7 +70,7 @@ func renderMarkdownTable(table *Table) []byte {
 	return buf.Bytes()
 }
 
-func renderMarkdown(basePath string, service string, tables []*Table) error {
+func renderMarkdown(basePath string, _ string, tables []*Table) error {
 	// create output folder
 	if err := os.MkdirAll(basePath, 0755); err != nil {
 		return err
@@ -79,6 +79,10 @@ func renderMarkdown(basePath string, service string, tables []*Table) error {
 	// generate individual markdown files with service
 	for _, table := range tables {
 		filename := path.Join(basePath, table.Name+".md")
+
+		if strings.ToLower(table.Comment) == "ignore" {
+			continue
+		}
 
 		contents := renderMarkdownTable(table)
 		if err := ioutil.WriteFile(filename, contents, 0644); err != nil {
