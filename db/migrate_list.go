@@ -6,6 +6,7 @@ func List() []string {
 	i := 0
 	for k := range migrations {
 		result[i] = k
+		i++
 	}
 	return result
 }
