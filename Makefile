@@ -79,10 +79,12 @@ migrate.%:
 	./build/db-schema-cli-linux-amd64 -service $(SERVICE) -schema migrations -db-dsn $(DSN) -format markdown -output docs/schema/$(SERVICE)
 	./build/db-schema-cli-linux-amd64 -schema migrations -db-dsn $(DSN) -drop=true
 
+# tidy source code
+
 tidy:
-	go mod tidy > /dev/null 2>&1
-	go mod download > /dev/null 2>&1
-	go fmt ./... > /dev/null 2>&1
+	go mod tidy
+	go mod download
+	go fmt ./...
 
 # docker image build
 
